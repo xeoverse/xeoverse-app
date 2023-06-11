@@ -11,7 +11,8 @@ export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
 
   useEffect(() => {
-    const socket = io("", {
+
+    const socket = io("wss://xeoverse.io", {
       path: "/api/socket",
     });
 
