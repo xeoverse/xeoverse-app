@@ -2,14 +2,24 @@
 
 import useSWR from "swr"
 import fetcher from "./swr"
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Box from "./components/Box"
+import { io } from "socket.io-client"
 
 export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
 
-  console.log(data)
+  useEffect(() => {
+    const socket = io('', {
+      path: "/api/socket",
+      addTrailingSlash: false
+    });
+
+    socket.on('connect', () => {
+      console.log("connected")
+    })
+  }, [])
 
   return (
     <Canvas>
