@@ -5,6 +5,8 @@ import fetcher from "./swr"
 import React, { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Box from "./components/Box"
+import Floor from "./components/Floor"
+import { FirstPersonControls } from "@react-three/drei"
 
 export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
@@ -38,8 +40,13 @@ export default function Home() {
     <Canvas>
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
-      <Box position={[-1.2, 0, 0]} />
-      <Box position={[1.2, 0, 0]} />
+      <Box position={[-1.2, 0, 0]} color="purple" />
+      <Box position={[1.2, 0, 0]} color="brown" />
+
+      <Box position={[1.2, 2, 0]} color="blue" />
+      <Box position={[-1.2, 2, 0]} color="green" />
+      <Floor />
+      <FirstPersonControls makeDefault lookSpeed={0.15} />
     </Canvas>
   )
 }
