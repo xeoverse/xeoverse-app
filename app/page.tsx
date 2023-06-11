@@ -5,33 +5,29 @@ import fetcher from "./swr"
 import React, { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Box from "./components/Box"
-import { io } from "socket.io-client"
 
 export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
 
   useEffect(() => {
     const main = async () => {
-      await fetch("/api/socket")
 
-      const socket = io("", {
-        path: "/api/socket",
-      });
+      const socket = new WebSocket("ws://127.0.0.1:8080/ws")
 
-      socket.on('connect', () => {
-        console.log("connected")
-        socket.send("message", { message: "hello" })
+      socket.addEventListener('open', () => {
+        console.log("WS connected")
+        socket.send("Text")
       })
 
-      socket.on('message', (data) => {
+      socket.addEventListener('message', (data) => {
         console.log(data)
       })
 
-      socket.on('disconnect', () => {
-        console.log("disconnected")
+      socket.addEventListener('close', () => {
+        console.log("WS disconnected")
       })
 
-      socket.on('error', (err) => {
+      socket.addEventListener('error', (err) => {
         console.log(err)
       })
     }
