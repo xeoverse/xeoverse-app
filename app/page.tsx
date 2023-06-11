@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     const main = async () => {
 
-      const socket = new WebSocket("ws://127.0.0.1:8080/ws")
+      const socket = new WebSocket("wss://rust.xeoverse.io/ws")
 
       socket.addEventListener('open', () => {
         console.log("WS connected")
