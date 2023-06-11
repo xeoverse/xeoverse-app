@@ -11,14 +11,30 @@ export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
 
   useEffect(() => {
-    const socket = io('', {
+    const socket = io("", {
       path: "/api/socket",
-      addTrailingSlash: false
     });
 
     socket.on('connect', () => {
       console.log("connected")
+      socket.send("message", { message: "hello" })
     })
+
+    socket.on('message', (data) => {
+      console.log(data)
+    })
+
+    socket.on('disconnect', () => {
+      console.log("disconnected")
+    })
+
+    socket.on('error', (err) => {
+      console.log(err)
+    })
+
+    return () => {
+      socket.disconnect()
+    }
   }, [])
 
   return (

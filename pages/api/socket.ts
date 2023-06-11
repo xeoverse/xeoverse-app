@@ -21,6 +21,18 @@ export default async function handler(req: NextApiRequest, res: NextResponseWith
 
     io.on("connection", onConnection);
 
+    io.on("disconnect", (socket: Socket) => {
+        console.log("Disconnected", socket.id);
+    });
+
+    io.on("error", (err: Error) => {
+        console.log("Error", err);
+    });
+
+    io.on("message", (payload: any) => {
+        console.log(payload)
+    });
+
     console.log("Socket server started successfully!");
     res.end();
 }
