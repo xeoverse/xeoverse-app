@@ -11,31 +11,31 @@ export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
 
   useEffect(() => {
+    const main = async () => {
+      await fetch("/api/socket")
 
-    const socket = io("wss://xeoverse.io", {
-      path: "/api/socket",
-    });
+      const socket = io("", {
+        path: "/api/socket",
+      });
 
-    socket.on('connect', () => {
-      console.log("connected")
-      socket.send("message", { message: "hello" })
-    })
+      socket.on('connect', () => {
+        console.log("connected")
+        socket.send("message", { message: "hello" })
+      })
 
-    socket.on('message', (data) => {
-      console.log(data)
-    })
+      socket.on('message', (data) => {
+        console.log(data)
+      })
 
-    socket.on('disconnect', () => {
-      console.log("disconnected")
-    })
+      socket.on('disconnect', () => {
+        console.log("disconnected")
+      })
 
-    socket.on('error', (err) => {
-      console.log(err)
-    })
-
-    return () => {
-      socket.disconnect()
+      socket.on('error', (err) => {
+        console.log(err)
+      })
     }
+    main()
   }, [])
 
   return (
