@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Mesh } from 'three'
+import { Box } from '@react-three/drei'
 
-function Box(props: any) {
-    const mesh = useRef<Mesh>()
+const CustomBox = (props: any) => {
+    const mesh = useRef<any>()
     const [hovered, setHover] = useState(false)
     const [active, setActive] = useState(false)
 
@@ -14,17 +14,19 @@ function Box(props: any) {
     })
 
     return (
-        <mesh
+        <Box
             {...props}
+            castShadow
             ref={mesh}
             scale={active ? 1.5 : 1}
-            onClick={(event) => setActive(!active)}
-            onPointerOver={(event) => setHover(true)}
-            onPointerOut={(event) => setHover(false)}>
-            <boxGeometry args={[1, 1, 1]} />
+            onClick={() => setActive(!active)}
+            onPointerOver={() => setHover(true)}
+            onPointerOut={() => setHover(false)}
+            material-color={props.color}
+        >
             <meshPhysicalMaterial color={hovered ? 'hotpink' : props.color} />
-        </mesh>
+        </Box>
     )
 }
 
-export default Box;
+export default CustomBox;

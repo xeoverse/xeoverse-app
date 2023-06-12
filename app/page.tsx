@@ -37,14 +37,21 @@ export default function Home() {
   }, [])
 
   return (
-    <Canvas>
-      <ambientLight />
-      <pointLight position={[10, 10, 10]} />
-      <Box position={[-1.2, 0, 0]} color="purple" />
-      <Box position={[1.2, 0, 0]} color="brown" />
+    <Canvas shadows>
+      <ambientLight intensity={0.4} />
+      <directionalLight
+        intensity={0.5}
+        castShadow
+        shadow-mapSize-height={1024}
+        shadow-mapSize-width={1024}
+        position={[10, 10, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      />
+      <Box position={[-1.2, 0, 1]} color="purple" />
+      <Box position={[1.2, 0, 2]} color="brown" />
 
-      <Box position={[1.2, 2, 0]} color="blue" />
-      <Box position={[-1.2, 2, 0]} color="green" />
+      <Box position={[1.2, 2, -1]} color="blue" />
+      <Box position={[-1.2, 2, -2]} color="green" />
       <Floor />
       <FirstPersonControls makeDefault lookSpeed={0.15} />
     </Canvas>
