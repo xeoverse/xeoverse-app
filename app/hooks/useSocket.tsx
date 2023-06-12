@@ -5,10 +5,10 @@ const useSocket = () => {
 
     useEffect(() => {
         const socket = new WebSocket("wss://rust.xeoverse.io/ws")
+        setSocket(socket)
 
         socket.addEventListener('open', () => {
             console.log("WS connected")
-            setSocket(socket)
         })
 
         socket.addEventListener('message', (data) => {

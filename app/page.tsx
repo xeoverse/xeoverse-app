@@ -3,72 +3,95 @@
 import useSWR from "swr"
 import fetcher from "./swr"
 import React, { useCallback, useEffect, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { FirstPersonControls, Stars, useKeyboardControls } from "@react-three/drei"
+import { FirstPersonControls, Sphere, Stars } from "@react-three/drei"
 import useSocket from "./hooks/useSocket"
-import { Controls } from "./clientLayout"
+import { Vector3 } from "three"
+
+const arraytoVector3 = (arr: number[]) => {
+  return new Vector3(arr[0], arr[1], arr[2])
+}
 
 interface User {
   userId: string,
-  direction: number[]
+  position: number[]
 }
 
 export default function Home() {
   // const { data, error, isLoading } = useSWR('/api/hello', fetcher)
   const [users, setUsers] = useState<User[]>([])
+
+  const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
   const [myUserId, setMyUserId] = useState<string | null>(null)
+
+  const { camera } = useThree()
 
   const socket = useSocket()
 
-  const forwardPressed = useKeyboardControls<Controls>(state => state.forward)
-  const backPressed = useKeyboardControls<Controls>(state => state.back)
-  const leftPressed = useKeyboardControls<Controls>(state => state.left)
-  const rightPressed = useKeyboardControls<Controls>(state => state.right)
-  const jumpPressed = useKeyboardControls<Controls>(state => state.jump)
-
   const handleSocketMessage = useCallback((data: any) => {
-    const parsed = JSON.parse(data.data)
-    console.log(parsed)
+    const parsed = JSON.parse(data?.data || "{}")
+    if (parsed.type === "userInit") {
+      setMyUserId(parsed.userId)
+    }
     if (parsed.type === "userJoin") {
-      setUsers(prev => [...prev, ...[{ userId: parsed.userId, direction: [0, 0, 0] }]])
+      setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId), ...[{ userId: parsed.userId, position: [0, 0, 0] }]])
     }
     if (parsed.type === "userLeave") {
       setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId)])
     }
-    if (parsed.type === "move") {
-      setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId), ...[{ userId: parsed.userId, direction: parsed.direction }]])
+    if (parsed.type === "userMove") {
+      setUsers(prev => {
+        const user = prev.find(u => u.userId === parsed.userId)
+        if (user) {
+          return [...prev.filter(u => u.userId !== parsed.userId), ...[{ userId: parsed.userId, position: user.position.map((v, i) => v + parsed.position[i]) }]]
+        } else {
+          return [...prev, ...[{ userId: parsed.userId, position: parsed.position }]]
+        }
+      })
     }
   }, [])
 
   useEffect(() => {
     if (socket) {
-      setMyUserId(Math.random().toString())
-
       socket.addEventListener('message', (data) => {
+        handleSocketMessage(data)
+      })
+
+      socket.addEventListener('open', (data) => {
         handleSocketMessage(data)
       })
     }
     return () => {
       socket?.removeEventListener('message', () => { })
+      socket?.removeEventListener('open', () => { })
     }
   }, [handleSocketMessage, socket])
 
   useEffect(() => {
-    if (myUserId && socket && (forwardPressed || backPressed || leftPressed || rightPressed || jumpPressed)) {
-      let direction = [0, 0, 0]
-      if (forwardPressed) direction[2] = -1
-      if (backPressed) direction[2] = 1
-      if (leftPressed) direction[0] = -1
-      if (rightPressed) direction[0] = 1
-      if (jumpPressed) direction[1] = 1
-      socket.send(JSON.stringify({ type: "move", direction, userId: myUserId }))
+    const interval = setInterval(() => {
+      if (myUserId && socket) {
+        const prevPosition = myPosition
+        const newPosition = camera.position.toArray()
+        setMyPosition(newPosition)
+
+        const positionDiff = newPosition.map((v, i) => v - prevPosition[i])
+
+        if (positionDiff.some(v => v !== 0)) {
+          socket.send(JSON.stringify({ type: "userMove", position: positionDiff, userId: myUserId }))
+        }
+
+      }
+    }, 1000 / 144)
+
+    return () => {
+      clearInterval(interval)
     }
-  }, [backPressed, forwardPressed, jumpPressed, leftPressed, myUserId, rightPressed, socket])
+  }, [camera.position, myPosition, myUserId, socket])
 
   return (
-    <Canvas shadows>
+    <>
       <ambientLight intensity={0.4} />
       <directionalLight
         intensity={0.5}
@@ -87,14 +110,14 @@ export default function Home() {
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
-            <Box position={u.direction} color="yellow" key={u.userId} />
+            <Sphere position={arraytoVector3(u.position)} key={u.userId} castShadow args={[0.2, 20, 20]}>
+              <meshPhysicalMaterial attach="material" color="gold" />
+            </Sphere>
           )
         })
       }
-      <FirstPersonControls makeDefault lookSpeed={0.15}>
-        <Box color="red" />
-      </FirstPersonControls>
+      <FirstPersonControls makeDefault lookSpeed={0.15} />
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
-    </Canvas>
+    </>
   )
 }
