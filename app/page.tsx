@@ -6,7 +6,7 @@ import React, { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { FirstPersonControls } from "@react-three/drei"
+import { FirstPersonControls, Stars } from "@react-three/drei"
 
 export default function Home() {
   const { data, error, isLoading } = useSWR('/api/hello', fetcher)
@@ -54,6 +54,7 @@ export default function Home() {
       <Box position={[-1.2, 2, -2]} color="green" />
       <Floor />
       <FirstPersonControls makeDefault lookSpeed={0.15} />
+      <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
     </Canvas>
   )
 }
