@@ -8,3 +8,10 @@
 
 ## What should a metaverse have?
 - Everything.
+
+# Features
+
+- Server authoritative Rust socket multiplayer.
+- React-three-fiber based threejs.
+- Rapier WASM physics.
+- WebXR support.
