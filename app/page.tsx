@@ -34,6 +34,7 @@ export default function Home() {
     const parsed = JSON.parse(data?.data || "{}")
     if (parsed.type === "userInit") {
       setMyUserId(parsed.userId)
+      setUsers(Object.entries(parsed.userPositions).map(([userId, position]) => ({ userId, position: position as number[] })) || [])
     }
     if (parsed.type === "userJoin") {
       setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId), ...[{ userId: parsed.userId, position: [0, 0, 0] }]])
@@ -83,7 +84,7 @@ export default function Home() {
         }
 
       }
-    }, 1000 / 144)
+    }, 1000 / 60)
 
     return () => {
       clearInterval(interval)
