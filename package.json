@@ -23,6 +23,7 @@
     "@prisma/client": "^4.15.0",
     "@react-three/drei": "^9.76.0",
     "@react-three/fiber": "^8.13.3",
+    "@react-three/rapier": "^1.0.1",
     "next": "13.4.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",

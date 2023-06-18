@@ -2,7 +2,8 @@
 
 import { KeyboardControls, KeyboardControlsEntry } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
-import { useMemo } from "react"
+import { Physics } from "@react-three/rapier"
+import { Suspense, useMemo } from "react"
 
 export enum Controls {
     forward = 'forward',
@@ -28,7 +29,11 @@ const ClientLayout = ({
     return (
         <KeyboardControls map={map}>
             <Canvas shadows>
-                {children}
+                <Suspense>
+                    <Physics debug>
+                        {children}
+                    </Physics>
+                </Suspense>
             </Canvas>
         </KeyboardControls>
     )

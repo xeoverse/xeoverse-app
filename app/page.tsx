@@ -6,9 +6,10 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Euler, useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { Cone, FirstPersonControls, Stars } from "@react-three/drei"
+import { Cone, FirstPersonControls, Sphere, Stars } from "@react-three/drei"
 import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
+import { RigidBody } from "@react-three/rapier"
 
 const arraytoVector3 = (arr: number[]) => {
   return new Vector3(arr?.[0], arr?.[1], arr?.[2])
@@ -54,7 +55,7 @@ export default function Home() {
     }
     if (parsed.type === "userJoin" && parsed.userId) {
       setUsers(prev => {
-        return [...prev, ...[{ userId: parsed.userId as string, position: [0, 0, 0], rotation: [0, 0, 0] }]]
+        return [...prev, ...[{ userId: parsed.userId as string, position: [0, 1, 0], rotation: [0, 0, 0] }]]
       })
     }
     if (parsed.type === "userLeave") {
@@ -141,6 +142,17 @@ export default function Home() {
 
       <Box position={[1.2, 2, -1]} color="blue" />
       <Box position={[-1.2, 2, -2]} color="green" />
+
+      <RigidBody colliders={"hull"} restitution={1.5}>
+        <Box position={[-4, 4, 0]} color="orange" />
+      </RigidBody>
+
+      <RigidBody colliders={"hull"} restitution={2}>
+        <Sphere position={[6, 2, 0]} args={[2, 5, 5]}>
+          <meshBasicMaterial attach="material" color="brown" wireframe />
+        </Sphere>
+      </RigidBody>
+
       <Floor />
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
