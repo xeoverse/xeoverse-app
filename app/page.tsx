@@ -3,20 +3,33 @@
 import useSWR from "swr"
 import fetcher from "./swr"
 import React, { useCallback, useEffect, useState } from 'react'
-import { useThree } from '@react-three/fiber'
+import { Euler, useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { FirstPersonControls, Sphere, Stars } from "@react-three/drei"
+import { Cone, FirstPersonControls, Stars } from "@react-three/drei"
 import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
 
 const arraytoVector3 = (arr: number[]) => {
-  return new Vector3(arr[0], arr[1], arr[2])
+  return new Vector3(arr?.[0], arr?.[1], arr?.[2])
+}
+
+const arrayToEuler = (arr: number[]) => {
+  return [arr?.[0], arr?.[1], arr?.[2], "XYZ"] as Euler
 }
 
 interface User {
   userId: string,
   position: number[]
+  rotation: number[]
+}
+
+interface SocketMessage {
+  type: 'userInit' | 'userJoin' | 'userLeave' | 'userMove' | 'userRotate'
+  userId: string
+  position: number[]
+  rotation: number[]
+  userStates: Record<string, { position: number[], rotation: number[] }>
 }
 
 export default function Home() {
@@ -24,6 +37,8 @@ export default function Home() {
   const [users, setUsers] = useState<User[]>([])
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
+  const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
+
   const [myUserId, setMyUserId] = useState<string | null>(null)
 
   const { camera } = useThree()
@@ -31,25 +46,36 @@ export default function Home() {
   const socket = useSocket()
 
   const handleSocketMessage = useCallback((data: any) => {
-    const parsed = JSON.parse(data?.data || "{}")
-    if (parsed.type === "userInit") {
+    const parsed: SocketMessage = JSON.parse(data?.data || "{}")
+
+    if (parsed.type === "userInit" && parsed.userId && parsed.userStates) {
       setMyUserId(parsed.userId)
-      setUsers(Object.entries(parsed.userPositions).map(([userId, position]) => ({ userId, position: position as number[] })) || [])
+      setUsers(Object.entries(parsed.userStates).map(([userId, { position, rotation }]) => ({ userId, position, rotation })) || [])
     }
-    if (parsed.type === "userJoin") {
-      setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId), ...[{ userId: parsed.userId, position: [0, 0, 0] }]])
+    if (parsed.type === "userJoin" && parsed.userId) {
+      setUsers(prev => {
+        return [...prev, ...[{ userId: parsed.userId as string, position: [0, 0, 0], rotation: [0, 0, 0] }]]
+      })
     }
     if (parsed.type === "userLeave") {
       setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId)])
     }
-    if (parsed.type === "userMove") {
+    if (parsed.type === "userMove" && parsed.userId && parsed?.position) {
       setUsers(prev => {
         const user = prev.find(u => u.userId === parsed.userId)
-        if (user) {
-          return [...prev.filter(u => u.userId !== parsed.userId), ...[{ userId: parsed.userId, position: user.position.map((v, i) => v + parsed.position[i]) }]]
-        } else {
-          return [...prev, ...[{ userId: parsed.userId, position: parsed.position }]]
-        }
+        const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
+        const userUpdate = { userId: parsed.userId, position: user?.position.map((v, i) => v + parsed.position[i]) || [0, 0, 0], rotation: user?.rotation || [0, 0, 0] }
+        
+        return [...filteredUsers, ...[userUpdate]]
+      })
+    }
+    if (parsed.type === "userRotate") {
+      setUsers(prev => {
+        const user = prev.find(u => u.userId === parsed.userId)
+        const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
+        const userUpdate = { userId: parsed.userId, position: user?.position || [0, 0, 0], rotation: user?.rotation.map((v, i) => v + parsed.rotation[i]) || [0, 0, 0] }
+        
+        return [...filteredUsers, ...[userUpdate]]
       })
     }
   }, [])
@@ -77,19 +103,27 @@ export default function Home() {
         const newPosition = camera.position.toArray()
         setMyPosition(newPosition)
 
+        const prevRotation = myRotation
+        const newRotation = camera.rotation.toArray().slice(0, 3) as number[];
+        setMyRotation(newRotation)
+
+        const rotationDiff = newRotation.map((v, i) => v - prevRotation[i])
         const positionDiff = newPosition.map((v, i) => v - prevPosition[i])
+
+        if (rotationDiff.some(v => v !== 0)) {
+          socket.send(JSON.stringify({ type: "userRotate", rotation: rotationDiff, userId: myUserId }))
+        }
 
         if (positionDiff.some(v => v !== 0)) {
           socket.send(JSON.stringify({ type: "userMove", position: positionDiff, userId: myUserId }))
         }
-
       }
     }, 1000 / 60)
 
     return () => {
       clearInterval(interval)
     }
-  }, [camera.position, myPosition, myUserId, socket])
+  }, [camera.position, camera.rotation, myPosition, myRotation, myUserId, socket])
 
   return (
     <>
@@ -111,9 +145,9 @@ export default function Home() {
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
-            <Sphere position={arraytoVector3(u.position)} key={u.userId} castShadow args={[0.2, 20, 20]}>
+            <Cone position={arraytoVector3(u.position)} rotation={arrayToEuler(u.rotation)} key={u.userId} castShadow args={[0.3, 0.7, 8]}>
               <meshPhysicalMaterial attach="material" color="gold" />
-            </Sphere>
+            </Cone>
           )
         })
       }
