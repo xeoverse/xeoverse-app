@@ -157,8 +157,8 @@ export default function Home() {
         rotation={[-Math.PI / 2, 0, 0]}
       />
 
-      <Box position={[1.2, 2, -1]} color="blue" />
-      <Box position={[-1.2, 2, -2]} color="green" />
+      <Box position={[1.2, 2, -5]} color="blue" />
+      <Box position={[-1.2, 2, -8]} color="green" />
 
       <RigidBody colliders={"ball"} restitution={1.5} ref={soccerBall}>
         <Sphere position={[-4, 4, 0]} onClick={handleSoccerBallClick} castShadow>
