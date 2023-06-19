@@ -19,7 +19,10 @@ const CustomBox = (props: any) => {
             castShadow
             ref={mesh}
             scale={active ? 1.5 : 1}
-            onClick={() => setActive(!active)}
+            onClick={() => {
+                props.onClick?.()
+                setActive(!active)
+            }}
             onPointerOver={() => setHover(true)}
             onPointerOut={() => setHover(false)}
             material-color={props.color}

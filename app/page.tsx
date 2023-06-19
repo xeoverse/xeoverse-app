@@ -1,13 +1,13 @@
 "use client"
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Euler, useThree, useLoader } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
 import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls } from "@react-three/drei"
 import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
-import { RigidBody } from "@react-three/rapier"
+import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
@@ -44,6 +44,8 @@ export default function Home() {
   const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
 
   const escapePressed = useKeyboardControls<Controls>(state => state.escape)
+
+  const soccerBall = useRef<RapierRigidBody>(null);
 
   const { camera } = useThree()
 
@@ -137,6 +139,13 @@ export default function Home() {
 
   const gltf = useLoader(GLTFLoader, '/test1.glb')
 
+  const handleSoccerBallClick = useCallback(() => {
+    if (soccerBall.current) {
+      const cameraDirection = camera.getWorldDirection(new Vector3())
+      soccerBall.current.applyImpulse(cameraDirection, true)
+    }
+  }, [camera])
+
   return (
     <>
       <ambientLight intensity={0.4} />
@@ -154,8 +163,10 @@ export default function Home() {
       <Box position={[1.2, 2, -1]} color="blue" />
       <Box position={[-1.2, 2, -2]} color="green" />
 
-      <RigidBody colliders={"hull"} restitution={1.5}>
-        <Box position={[-4, 4, 0]} color="orange" />
+      <RigidBody colliders={"ball"} restitution={1.5} ref={soccerBall}>
+        <Sphere position={[-4, 4, 0]} onClick={handleSoccerBallClick} castShadow>
+          <meshPhysicalMaterial attach="material" color="white" />
+        </Sphere>
       </RigidBody>
 
       <RigidBody colliders={"hull"} restitution={2}>
