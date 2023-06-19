@@ -164,8 +164,6 @@ export default function Home() {
         rotation={[-Math.PI / 2, 0, 0]}
       />
 
-      <Box position={[-1.2, 0, 1]} color="purple" />
-      <Box position={[1.2, 0, 2]} color="brown" />
       <Box position={[1.2, 2, -1]} color="blue" />
       <Box position={[-1.2, 2, -2]} color="green" />
 
