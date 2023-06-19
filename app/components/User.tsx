@@ -1,5 +1,5 @@
 import { Cone, Text } from "@react-three/drei";
-import { arrayToEuler, arraytoVector3 } from "../page";
+import { arrayToEuler, arraytoVector3 } from "../helpers";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 

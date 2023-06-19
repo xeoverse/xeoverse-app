@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Euler, useThree, useLoader } from '@react-three/fiber'
+import { useThree, useLoader } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
 import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls } from "@react-three/drei"
@@ -11,14 +11,7 @@ import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import User from './components/User'
-
-export const arraytoVector3 = (arr: number[]) => {
-  return new Vector3(arr?.[0], arr?.[1], arr?.[2])
-}
-
-export const arrayToEuler = (arr: number[]) => {
-  return [arr?.[0], arr?.[1], arr?.[2], "XYZ"] as Euler
-}
+import { arrayToEuler, arraytoVector3 } from './helpers'
 
 interface User {
   userId: string,
