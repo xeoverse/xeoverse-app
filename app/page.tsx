@@ -10,12 +10,13 @@ import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import User from './components/User'
 
-const arraytoVector3 = (arr: number[]) => {
+export const arraytoVector3 = (arr: number[]) => {
   return new Vector3(arr?.[0], arr?.[1], arr?.[2])
 }
 
-const arrayToEuler = (arr: number[]) => {
+export const arrayToEuler = (arr: number[]) => {
   return [arr?.[0], arr?.[1], arr?.[2], "XYZ"] as Euler
 }
 
@@ -60,11 +61,12 @@ export default function Home() {
     }
     if (parsed.type === "userJoin" && parsed.userId) {
       setUsers(prev => {
-        return [...prev, ...[{ userId: parsed.userId as string, position: [0, 1, 0], rotation: [0, 0, 0] }]]
+        const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
+        return [...filteredUsers, ...[{ userId: parsed.userId as string, position: [0, 1, 0], rotation: [0, 0, 0] }]]
       })
     }
     if (parsed.type === "userLeave") {
-      setUsers(prev => [...prev.filter(u => u.userId !== parsed.userId)])
+      setUsers(prev => prev.filter(u => u.userId !== parsed.userId))
     }
     if (parsed.type === "userMove" && parsed.userId && parsed?.position) {
       setUsers(prev => {
@@ -152,14 +154,14 @@ export default function Home() {
       <directionalLight
         intensity={0.5}
         castShadow
-        shadow-mapSize-height={1024}
-        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024 * 2}
+        shadow-mapSize-width={1024 * 2}
         position={[10, 10, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
+
       <Box position={[-1.2, 0, 1]} color="purple" />
       <Box position={[1.2, 0, 2]} color="brown" />
-
       <Box position={[1.2, 2, -1]} color="blue" />
       <Box position={[-1.2, 2, -2]} color="green" />
 
@@ -177,24 +179,22 @@ export default function Home() {
 
       <primitive object={gltf.scene} position={[0, -1.05, 0]} />
 
-      <Floor />
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
-            <Cone position={arraytoVector3(u.position)} rotation={arrayToEuler(u.rotation)} key={u.userId} castShadow args={[0.3, 0.7, 8]}>
-              <meshPhysicalMaterial attach="material" color="gold" />
-            </Cone>
+            <User key={u.userId} userId={u.userId} position={u.position} rotation={u.rotation} />
           )
         })
       }
 
-      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={2}>
-        <Cone position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)} castShadow args={[0.3, 0.7, 8]}>
-          <meshPhysicalMaterial attach="material" color="gold" />
-        </Cone>
-      </FirstPersonControls>
+      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={2} />
+
+      <Cone position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)} castShadow args={[0.3, 0.7, 8]}>
+        <meshPhysicalMaterial attach="material" color="gold" />
+      </Cone>
 
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      <Floor />
     </>
   )
 }
