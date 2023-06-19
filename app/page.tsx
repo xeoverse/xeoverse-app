@@ -154,9 +154,13 @@ export default function Home() {
       <directionalLight
         intensity={0.5}
         castShadow
-        shadow-mapSize-height={1024 * 2}
-        shadow-mapSize-width={1024 * 2}
-        position={[10, 10, 0]}
+        shadow-mapSize-height={1024 * 4}
+        shadow-mapSize-width={1024 * 4}
+        shadow-camera-left={40}
+        shadow-camera-right={-40}
+        shadow-camera-top={40}
+        shadow-camera-bottom={-40}
+        position={[100, 80, 75]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
 
@@ -189,9 +193,11 @@ export default function Home() {
 
       <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={2} />
 
-      <Cone position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)} castShadow args={[0.3, 0.7, 8]}>
-        <meshPhysicalMaterial attach="material" color="gold" />
-      </Cone>
+      <group position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)}>
+        <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])} >
+          <meshPhysicalMaterial attach="material" color="gold" />
+        </Cone>
+      </group>
 
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       <Floor />
