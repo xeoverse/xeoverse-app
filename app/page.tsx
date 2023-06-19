@@ -6,10 +6,11 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Euler, useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { Cone, FirstPersonControls, Sphere, Stars } from "@react-three/drei"
+import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls } from "@react-three/drei"
 import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
 import { RigidBody } from "@react-three/rapier"
+import { Controls } from "./clientLayout"
 
 const arraytoVector3 = (arr: number[]) => {
   return new Vector3(arr?.[0], arr?.[1], arr?.[2])
@@ -39,8 +40,11 @@ export default function Home() {
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
   const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
-
   const [myUserId, setMyUserId] = useState<string | null>(null)
+
+  const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
+
+  const escapePressed = useKeyboardControls<Controls>(state => state.escape)
 
   const { camera } = useThree()
 
@@ -80,6 +84,12 @@ export default function Home() {
       })
     }
   }, [])
+
+  useEffect(() => {
+    if (escapePressed) {
+      setIsFirstPerson(prev => !prev)
+    }
+  }, [escapePressed])
 
   useEffect(() => {
     if (socket) {
@@ -163,7 +173,7 @@ export default function Home() {
           )
         })
       }
-      <FirstPersonControls makeDefault lookSpeed={0.15} />
+      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} />
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
     </>
   )
