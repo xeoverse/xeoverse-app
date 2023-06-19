@@ -135,7 +135,7 @@ export default function Home() {
     }
   }, [camera.position, camera.rotation, myPosition, myRotation, myUserId, socket])
 
-  const gltf = useLoader(GLTFLoader, '/test1.gltf')
+  const gltf = useLoader(GLTFLoader, '/test1.glb')
 
   return (
     <>
@@ -164,7 +164,7 @@ export default function Home() {
         </Sphere>
       </RigidBody>
 
-      <primitive object={gltf.scene} position={[0, -0.95, 0]} />
+      <primitive object={gltf.scene} position={[0, -1.05, 0]} />
 
       <Floor />
       {
