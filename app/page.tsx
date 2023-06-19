@@ -121,11 +121,11 @@ export default function Home() {
         const positionDiff = newPosition.map((v, i) => v - prevPosition[i])
 
         if (rotationDiff.some(v => v !== 0)) {
-          socket.send(JSON.stringify({ type: "userRotate", rotation: rotationDiff, userId: myUserId }))
+          socket.send(`userRotate ${rotationDiff}`)
         }
 
         if (positionDiff.some(v => v !== 0)) {
-          socket.send(JSON.stringify({ type: "userMove", position: positionDiff, userId: myUserId }))
+          socket.send(`userMove ${positionDiff}`)
         }
       }
     }, 1000 / 60)
