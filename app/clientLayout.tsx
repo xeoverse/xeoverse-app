@@ -4,6 +4,7 @@ import { KeyboardControls, KeyboardControlsEntry } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Suspense, useMemo } from "react"
+import Menu from "./components/Menu"
 
 export enum Controls {
     forward = 'forward',
@@ -37,6 +38,7 @@ const ClientLayout = ({
                     </Physics>
                 </Suspense>
             </Canvas>
+            <Menu />
         </KeyboardControls>
     )
 }

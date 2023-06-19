@@ -1,7 +1,5 @@
 "use client"
 
-import useSWR from "swr"
-import fetcher from "./swr"
 import React, { useCallback, useEffect, useState } from 'react'
 import { Euler, useThree } from '@react-three/fiber'
 import Box from "./components/Box"
@@ -26,16 +24,16 @@ interface User {
   rotation: number[]
 }
 
-interface SocketMessage {
-  type: 'userInit' | 'userJoin' | 'userLeave' | 'userMove' | 'userRotate'
+export interface SocketMessage {
+  type: 'userInit' | 'userJoin' | 'userLeave' | 'userMove' | 'userRotate' | 'userVoice'
   userId: string
   position: number[]
   rotation: number[]
+  data: string
   userStates: Record<string, { position: number[], rotation: number[] }>
 }
 
 export default function Home() {
-  // const { data, error, isLoading } = useSWR('/api/hello', fetcher)
   const [users, setUsers] = useState<User[]>([])
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
@@ -70,7 +68,7 @@ export default function Home() {
         const user = prev.find(u => u.userId === parsed.userId)
         const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
         const userUpdate = { userId: parsed.userId, position: user?.position.map((v, i) => v + parsed.position[i]) || [0, 0, 0], rotation: user?.rotation || [0, 0, 0] }
-        
+
         return [...filteredUsers, ...[userUpdate]]
       })
     }
@@ -79,7 +77,7 @@ export default function Home() {
         const user = prev.find(u => u.userId === parsed.userId)
         const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
         const userUpdate = { userId: parsed.userId, position: user?.position || [0, 0, 0], rotation: user?.rotation.map((v, i) => v + parsed.rotation[i]) || [0, 0, 0] }
-        
+
         return [...filteredUsers, ...[userUpdate]]
       })
     }
@@ -173,7 +171,13 @@ export default function Home() {
           )
         })
       }
-      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} />
+
+      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={2}>
+        <Cone position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)} castShadow args={[0.3, 0.7, 8]}>
+          <meshPhysicalMaterial attach="material" color="gold" />
+        </Cone>
+      </FirstPersonControls>
+
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
     </>
   )
