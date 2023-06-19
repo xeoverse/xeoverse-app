@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { Euler, useThree } from '@react-three/fiber'
+import { Euler, useThree, useLoader } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
 import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls } from "@react-three/drei"
@@ -9,6 +9,7 @@ import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
 import { RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 const arraytoVector3 = (arr: number[]) => {
   return new Vector3(arr?.[0], arr?.[1], arr?.[2])
@@ -134,6 +135,8 @@ export default function Home() {
     }
   }, [camera.position, camera.rotation, myPosition, myRotation, myUserId, socket])
 
+  const gltf = useLoader(GLTFLoader, '/test1.gltf')
+
   return (
     <>
       <ambientLight intensity={0.4} />
@@ -160,6 +163,8 @@ export default function Home() {
           <meshBasicMaterial attach="material" color="brown" wireframe />
         </Sphere>
       </RigidBody>
+
+      <primitive object={gltf.scene} position={[0, -0.95, 0]} />
 
       <Floor />
       {
