@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useThree, useLoader } from '@react-three/fiber'
+import { useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
 import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls } from "@react-three/drei"
@@ -9,9 +9,9 @@ import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import User from './components/User'
 import { arrayToEuler, arraytoVector3 } from './helpers'
+import { Model as TestGLTF } from './components/gltf/TestGLTF'
 
 interface User {
   userId: string,
@@ -132,8 +132,6 @@ export default function Home() {
     }
   }, [camera.position, camera.rotation, myPosition, myRotation, myUserId, socket])
 
-  const gltf = useLoader(GLTFLoader, '/test1.glb')
-
   const handleSoccerBallClick = useCallback(() => {
     if (soccerBall.current) {
       const cameraDirection = camera.getWorldDirection(new Vector3())
@@ -172,7 +170,7 @@ export default function Home() {
         </Sphere>
       </RigidBody>
 
-      <primitive object={gltf.scene} position={[0, -1.05, 0]} />
+      <TestGLTF position={arraytoVector3([0, -1.05, 0])} />
 
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
