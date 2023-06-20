@@ -1,9 +1,10 @@
-import { useKeyboardControls } from "@react-three/drei"
+import { useKeyboardControls, Stats } from "@react-three/drei"
 import { useCallback, useEffect, useState } from "react"
 import { Controls } from "../clientLayout"
 
 const Menu = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isStatsOpen, setIsStatsOpen] = useState<boolean>(true)
 
     const escapePressed = useKeyboardControls<Controls>(state => state.escape)
 
@@ -34,9 +35,30 @@ const Menu = () => {
     }, [escapePressed])
 
     return (
-        <div style={isOpen ? { position: 'absolute', top: 0, height: '100%', width: '100%', padding: '1rem' } : { display: 'none' }}>
-            <button onClick={captureVoice}>voice</button>
-        </div>
+        <>
+            {
+                isStatsOpen && <Stats showPanel={0} />
+            }
+            <div style={isOpen ? {
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                left: 0,
+                height: '100%',
+                width: '100%',
+                padding: '1rem',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'flex-end',
+                background: '#00000061',
+                gap: '1rem',
+                flexDirection: 'column'
+            } : { display: 'none' }}>
+                <button onClick={captureVoice}>voice</button>
+                <button onClick={() => setIsStatsOpen(!isStatsOpen)}>stats</button>
+            </div>
+        </>
+
     )
 }
 
