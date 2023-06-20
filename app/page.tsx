@@ -45,37 +45,45 @@ export default function Home() {
 
   const socket = useSocket()
 
-  const handleSocketMessage = useCallback((data: any) => {
-    const parsed: SocketMessage = JSON.parse(data?.data || "{}")
+  const handleSocketMessage = useCallback((msg: any) => {
+    if (!msg?.data) return;
 
-    if (parsed.type === "userInit" && parsed.userId && parsed.userStates) {
-      setMyUserId(parsed.userId)
-      setUsers(Object.entries(parsed.userStates).map(([userId, { position, rotation }]) => ({ userId, position, rotation })) || [])
+    const parsed = msg?.data?.split(" ");
+    const type = parsed?.[0];
+    const userId = parsed?.[1];
+    const data = parsed?.[2];
+
+    if (!type) return console.log("Invalid message received from server")
+
+    if (type === "userInit" && userId) {
+      setMyUserId(userId)
+      const userStates = JSON.parse(data) as Record<string, { position: number[], rotation: number[] }>
+      return setUsers(Object.entries(userStates).map(([userId, { position, rotation }]) => ({ userId, position, rotation })) || [])
     }
-    if (parsed.type === "userJoin" && parsed.userId) {
+    if (type === "userJoin" && userId) {
       setUsers(prev => {
-        const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
-        return [...filteredUsers, ...[{ userId: parsed.userId as string, position: [0, 1, 0], rotation: [0, 0, 0] }]]
+        const filteredUsers = prev.filter(u => u.userId !== userId)
+        return [...filteredUsers, ...[{ userId, position: [0, 1, 0], rotation: [0, 0, 0] }]]
       })
     }
-    if (parsed.type === "userLeave") {
-      setUsers(prev => prev.filter(u => u.userId !== parsed.userId))
+    if (type === "userLeave" && userId) {
+      return setUsers(prev => prev.filter(u => u.userId !== userId))
     }
-    if (parsed.type === "userMove" && parsed.userId && parsed?.position) {
-      setUsers(prev => {
-        const user = prev.find(u => u.userId === parsed.userId)
-        const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
-        const userUpdate = { userId: parsed.userId, position: user?.position.map((v, i) => v + parsed.position[i]) || [0, 0, 0], rotation: user?.rotation || [0, 0, 0] }
-
+    if (type === "userMove" && userId && data) {
+      const position = data.split(",").map((v: string) => parseFloat(v))
+      return setUsers(prev => {
+        const user = prev.find(u => u.userId === userId)
+        const filteredUsers = prev.filter(u => u.userId !== userId)
+        const userUpdate = { userId, position: user?.position.map((v, i) => v + position[i]) || [0, 0, 0], rotation: user?.rotation || [0, 0, 0] }
         return [...filteredUsers, ...[userUpdate]]
       })
     }
-    if (parsed.type === "userRotate") {
-      setUsers(prev => {
-        const user = prev.find(u => u.userId === parsed.userId)
-        const filteredUsers = prev.filter(u => u.userId !== parsed.userId)
-        const userUpdate = { userId: parsed.userId, position: user?.position || [0, 0, 0], rotation: user?.rotation.map((v, i) => v + parsed.rotation[i]) || [0, 0, 0] }
-
+    if (type === "userRotate" && userId && data) {
+      const rotation = data.split(",").map((v: string) => parseFloat(v))
+      return setUsers(prev => {
+        const user = prev.find(u => u.userId === userId)
+        const filteredUsers = prev.filter(u => u.userId !== userId)
+        const userUpdate = { userId, position: user?.position || [0, 0, 0], rotation: user?.rotation.map((v, i) => v + rotation[i]) || [0, 0, 0] }
         return [...filteredUsers, ...[userUpdate]]
       })
     }
