@@ -14,18 +14,28 @@ import { arrayToEuler, arraytoVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 
 interface User {
-  userId: string,
+  userId: number,
   position: number[]
   rotation: number[]
 }
 
+enum MessageType {
+  UserInit,
+  UserJoin,
+  UserLeave,
+  UserMove,
+  UserRotate,
+}
+
+type UserStates = Record<number, { position: number[], rotation: number[] }>
+
 export interface SocketMessage {
-  type: 'userInit' | 'userJoin' | 'userLeave' | 'userMove' | 'userRotate' | 'userVoice'
-  userId: string
+  type: MessageType
+  userId: number
   position: number[]
   rotation: number[]
   data: string
-  userStates: Record<string, { position: number[], rotation: number[] }>
+  userStates: UserStates
 }
 
 export default function Home() {
@@ -33,7 +43,7 @@ export default function Home() {
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
   const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
-  const [myUserId, setMyUserId] = useState<string | null>(null)
+  const [myUserId, setMyUserId] = useState<number | null>(null)
 
   const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
 
@@ -49,27 +59,27 @@ export default function Home() {
     if (!msg?.data) return;
 
     const parsed = msg?.data?.split(" ");
-    const type = parsed?.[0];
-    const userId = parsed?.[1];
+    const type = Number(parsed?.[0]) ?? null;
+    const userId = Number(parsed?.[1]) ?? null;
     const data = parsed?.[2];
 
-    if (!type) return console.log("Invalid message received from server")
+    if (type === null) return console.log("Invalid message received from server")
 
-    if (type === "userInit" && userId) {
+    if (type === MessageType.UserInit && userId !== null) {
       setMyUserId(userId)
-      const userStates = JSON.parse(data) as Record<string, { position: number[], rotation: number[] }>
-      return setUsers(Object.entries(userStates).map(([userId, { position, rotation }]) => ({ userId, position, rotation })) || [])
+      const userStates = JSON.parse(data) as UserStates
+      return setUsers(Object.entries(userStates).map(([userId, { position, rotation }]) => ({ userId: Number(userId), position, rotation })) || [])
     }
-    if (type === "userJoin" && userId) {
+    if (type === MessageType.UserJoin && userId !== null) {
       setUsers(prev => {
         const filteredUsers = prev.filter(u => u.userId !== userId)
         return [...filteredUsers, ...[{ userId, position: [0, 1, 0], rotation: [0, 0, 0] }]]
       })
     }
-    if (type === "userLeave" && userId) {
+    if (type === MessageType.UserLeave && userId !== null) {
       return setUsers(prev => prev.filter(u => u.userId !== userId))
     }
-    if (type === "userMove" && userId && data) {
+    if (type === MessageType.UserMove && userId !== null && data) {
       const position = data.split(",").map((v: string) => parseFloat(v))
       return setUsers(prev => {
         const user = prev.find(u => u.userId === userId)
@@ -78,7 +88,7 @@ export default function Home() {
         return [...filteredUsers, ...[userUpdate]]
       })
     }
-    if (type === "userRotate" && userId && data) {
+    if (type === MessageType.UserRotate && userId !== null && data) {
       const rotation = data.split(",").map((v: string) => parseFloat(v))
       return setUsers(prev => {
         const user = prev.find(u => u.userId === userId)
@@ -126,11 +136,11 @@ export default function Home() {
         const positionDiff = newPosition.map((v, i) => v - prevPosition[i])
 
         if (rotationDiff.some(v => v !== 0)) {
-          socket.send(`userRotate ${rotationDiff}`)
+          socket.send(`${MessageType.UserRotate} ${rotationDiff}`)
         }
 
         if (positionDiff.some(v => v !== 0)) {
-          socket.send(`userMove ${positionDiff}`)
+          socket.send(`${MessageType.UserMove} ${positionDiff}`)
         }
       }
     }, 1000 / 60)

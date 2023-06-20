@@ -7,7 +7,7 @@ import { useSpring } from "framer-motion"
 interface UserProps {
     position: number[]
     rotation: number[]
-    userId: string
+    userId: number
 }
 
 const User = ({ position, rotation, userId }: UserProps) => {
