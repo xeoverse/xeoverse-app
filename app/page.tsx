@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
@@ -12,6 +12,7 @@ import { Controls } from "./clientLayout"
 import User from './components/User'
 import { arrayToEuler, arraytoVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
+import { Model as ChairGLTF } from './components/gltf/Chair'
 import Bullet, { BulletProps } from './components/Bullet'
 
 interface User {
@@ -237,8 +238,13 @@ export default function Home() {
           )
         })
       }
+      <Suspense fallback={null}>
+        <TestGLTF position={arraytoVector3([0, -1.05, 0])} />
+      </Suspense>
 
-      <TestGLTF position={arraytoVector3([0, -1.05, 0])} />
+      <Suspense fallback={null}>
+        <ChairGLTF position={arraytoVector3([7, -1.05, 4])} />
+      </Suspense>
 
       {
         users.filter(user => user.userId !== myUserId).map((u) => {

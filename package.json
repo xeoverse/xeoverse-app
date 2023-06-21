@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gltf": "npx gltfjsx ./public/gltf/test1.glb --shadows --output ./app/components/gltf/TestGLTF.tsx --types --root ./public/ --debug",
+    "gltf": "npx gltfjsx ./public/gltf/chair.glb --shadows --output ./app/components/gltf/Chair.tsx --types --root ./public/ --debug",
     "postinstall": "prisma generate"
   },
   "devDependencies": {
