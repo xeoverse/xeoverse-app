@@ -241,19 +241,27 @@ export default function Home() {
         })
       }
       <Suspense fallback={null}>
-        <TestGLTF position={arraytoVector3([0, -1.05, 0])} />
+        <RigidBody colliders="hull">
+          <TestGLTF position={arraytoVector3([0, -1.1, 0])} />
+        </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <ChairGLTF position={arraytoVector3([7, -1.05, 4])} />
+        <RigidBody colliders="hull">
+          <ChairGLTF position={arraytoVector3([7, -1.1, 4])} />
+        </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RobotGLTF position={arraytoVector3([7, -1, -7])} />
+        <RigidBody colliders="hull" restitution={0.1}>
+          <RobotGLTF position={arraytoVector3([7, 0, -7])} />
+        </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <OfficeGLTF position={arraytoVector3([7, -1, -20])} />
+        <RigidBody colliders="hull" restitution={0}>
+          <OfficeGLTF position={arraytoVector3([12, -0.5, -15])} />
+        </RigidBody>
       </Suspense>
 
       {
