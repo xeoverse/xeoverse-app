@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gltf": "npx gltfjsx ./public/gltf/robot.glb --shadows --output ./app/components/gltf/Robot.tsx --types --root ./public/ --debug",
+    "gltf": "npx gltfjsx ./public/gltf/office.glb --shadows --output ./app/components/gltf/Office.tsx --types --root ./public/ --debug",
     "postinstall": "prisma generate"
   },
   "devDependencies": {

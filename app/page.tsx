@@ -14,6 +14,7 @@ import { arrayToEuler, arraytoVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
+import { Model as OfficeGLTF } from './components/gltf/Office'
 import Bullet, { BulletProps } from './components/Bullet'
 
 interface User {
@@ -251,6 +252,10 @@ export default function Home() {
         <RobotGLTF position={arraytoVector3([7, -1, -7])} />
       </Suspense>
 
+      <Suspense fallback={null}>
+        <OfficeGLTF position={arraytoVector3([7, -1, -20])} />
+      </Suspense>
+
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
@@ -267,7 +272,7 @@ export default function Home() {
         })
       }
 
-      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={2} />
+      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={3} />
 
       <group position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)}>
         <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])} >
