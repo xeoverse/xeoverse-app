@@ -13,6 +13,7 @@ import User from './components/User'
 import { arrayToEuler, arraytoVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 import { Model as ChairGLTF } from './components/gltf/Chair'
+import { Model as RobotGLTF } from './components/gltf/Robot'
 import Bullet, { BulletProps } from './components/Bullet'
 
 interface User {
@@ -244,6 +245,10 @@ export default function Home() {
 
       <Suspense fallback={null}>
         <ChairGLTF position={arraytoVector3([7, -1.05, 4])} />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RobotGLTF position={arraytoVector3([7, -1, -7])} />
       </Suspense>
 
       {
