@@ -33,7 +33,7 @@ const ClientLayout = ({
         <KeyboardControls map={map}>
             <Canvas shadows>
                 <Suspense>
-                    <Physics debug>
+                    <Physics>
                         {children}
                     </Physics>
                 </Suspense>
