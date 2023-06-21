@@ -10,11 +10,12 @@ import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import User from './components/User'
-import { arrayToEuler, arraytoVector3 } from './helpers'
+import { arrayToEuler, arraytoVector3, multiplyVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
 import { Model as OfficeGLTF } from './components/gltf/Office'
+import { Model as FieldGLTF } from './components/gltf/Field'
 import Bullet, { BulletProps } from './components/Bullet'
 
 interface User {
@@ -181,7 +182,7 @@ export default function Home() {
   const handleSoccerBallClick = useCallback(() => {
     if (soccerBall.current) {
       const cameraDirection = camera.getWorldDirection(new Vector3())
-      soccerBall.current.applyImpulse(cameraDirection, true)
+      soccerBall.current.applyImpulse(multiplyVector3(cameraDirection, 4), true)
     }
   }, [camera])
 
@@ -214,12 +215,6 @@ export default function Home() {
 
       <Box position={[1.2, 2, -5]} color="blue" />
       <Box position={[-1.2, 2, -8]} color="green" />
-
-      <RigidBody colliders={"ball"} restitution={1.5} ref={soccerBall}>
-        <Sphere position={[-7, 4, 0]} onClick={handleSoccerBallClick} castShadow receiveShadow>
-          <meshPhysicalMaterial attach="material" color="white" />
-        </Sphere>
-      </RigidBody>
 
       <RigidBody colliders={"hull"} restitution={2}>
         <Sphere position={[-5, 1, -10]} args={[2, 5, 5]}>
@@ -264,6 +259,18 @@ export default function Home() {
         </RigidBody>
       </Suspense>
 
+      <Suspense fallback={null}>
+        <RigidBody colliders="trimesh" restitution={0}>
+          <FieldGLTF position={arraytoVector3([-30, 1, -0])} />
+        </RigidBody>
+
+        <RigidBody colliders={"ball"} restitution={1.75} ref={soccerBall}>
+          <Sphere position={[-30, 2, 0]} args={[0.5, 20, 20]} onClick={handleSoccerBallClick} castShadow receiveShadow>
+            <meshPhysicalMaterial attach="material" color="white" />
+          </Sphere>
+        </RigidBody>
+      </Suspense>
+
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
@@ -280,7 +287,7 @@ export default function Home() {
         })
       }
 
-      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={3} />
+      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={4} />
 
       <group position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)}>
         <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])} >
