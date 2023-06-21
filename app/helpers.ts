@@ -8,3 +8,7 @@ export const arraytoVector3 = (arr: number[]) => {
 export const arrayToEuler = (arr: number[]) => {
     return [arr?.[0], arr?.[1], arr?.[2], "XYZ"] as Euler
 }
+
+export const multiplyVector3 = (vec: Vector3, multiplier: number) => {
+    return new Vector3(vec.x * multiplier, vec.y * multiplier, vec.z * multiplier)
+}

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls } from "@react-three/drei"
+import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
 import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
@@ -12,6 +12,7 @@ import { Controls } from "./clientLayout"
 import User from './components/User'
 import { arrayToEuler, arraytoVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
+import Bullet from './components/Bullet'
 
 interface User {
   userId: number,
@@ -48,6 +49,7 @@ export default function Home() {
   const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
 
   const escapePressed = useKeyboardControls<Controls>(state => state.escape)
+  const jumpPressed = useKeyboardControls<Controls>(state => state.jump)
 
   const soccerBall = useRef<RapierRigidBody>(null);
 
@@ -157,6 +159,14 @@ export default function Home() {
     }
   }, [camera])
 
+  const [bullets, setBullets] = useState<Vector3[]>([])
+
+  useEffect(() => {
+    if (jumpPressed) {
+      setBullets(prev => [...prev, ...[camera.position.clone()]])
+    }
+  }, [camera.position, jumpPressed])
+
   return (
     <>
       <ambientLight intensity={0.25} />
@@ -177,16 +187,30 @@ export default function Home() {
       <Box position={[-1.2, 2, -8]} color="green" />
 
       <RigidBody colliders={"ball"} restitution={1.5} ref={soccerBall}>
-        <Sphere position={[-4, 4, 0]} onClick={handleSoccerBallClick} castShadow>
+        <Sphere position={[-7, 4, 0]} onClick={handleSoccerBallClick} castShadow receiveShadow>
           <meshPhysicalMaterial attach="material" color="white" />
         </Sphere>
       </RigidBody>
 
       <RigidBody colliders={"hull"} restitution={2}>
-        <Sphere position={[6, 2, 0]} args={[2, 5, 5]}>
-          <meshBasicMaterial attach="material" color="brown" wireframe />
+        <Sphere position={[-5, 1, -10]} args={[2, 5, 5]}>
+          <meshPhysicalMaterial attach="material" color="brown" wireframe />
         </Sphere>
       </RigidBody>
+
+      <RigidBody colliders={"hull"} restitution={0.5}>
+        <DreiBox position={[15, 0, 0]} args={[2, 2, 15]} castShadow receiveShadow>
+          <meshBasicMaterial attach="material" color="brown" />
+        </DreiBox>
+      </RigidBody>
+
+      {
+        bullets.map((position, i) => {
+          return (
+            <Bullet key={i} initialPosition={position} camera={camera} />
+          )
+        })
+      }
 
       <TestGLTF position={arraytoVector3([0, -1.05, 0])} />
 
