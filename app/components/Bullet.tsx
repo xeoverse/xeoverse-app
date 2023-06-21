@@ -1,21 +1,29 @@
 import { Sphere } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 import { useRef, useEffect } from "react";
-import { Camera, Vector3 } from "three";
+import { Vector3 } from "three";
 import { multiplyVector3 } from "../helpers";
+import { Camera } from "@react-three/fiber";
 
-const Bullet = ({ initialPosition, camera }: { initialPosition: Vector3, camera: Camera }) => {
+export interface BulletProps {
+    initialPosition: Vector3,
+    direction?: Vector3
+    camera?: Camera
+    userId?: number
+}
+
+const Bullet = ({ initialPosition, direction, camera, userId }: BulletProps) => {
     const bullet = useRef<any>(null);
 
     useEffect(() => {
         const api = bullet.current;
         if (api) {
             setTimeout(() => {
-                const cameraDirection = camera.getWorldDirection(new Vector3());
-                api.applyImpulse(multiplyVector3(cameraDirection, 1), true);
+                const bulletDirection = (direction || camera?.getWorldDirection(new Vector3())) as Vector3
+                api.applyImpulse(multiplyVector3(bulletDirection, 0.5), true);
             }, 1000 / 60);
         }
-    }, [camera]);
+    }, [camera, direction]);
 
     return (
         <RigidBody colliders={"ball"} restitution={1.5} ref={bullet} position={initialPosition}>

@@ -12,7 +12,7 @@ import { Controls } from "./clientLayout"
 import User from './components/User'
 import { arrayToEuler, arraytoVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
-import Bullet from './components/Bullet'
+import Bullet, { BulletProps } from './components/Bullet'
 
 interface User {
   userId: number,
@@ -26,6 +26,7 @@ enum MessageType {
   UserLeave,
   UserMove,
   UserRotate,
+  UserShoot,
 }
 
 type UserStates = Record<number, { position: number[], rotation: number[] }>
@@ -41,6 +42,7 @@ export interface SocketMessage {
 
 export default function Home() {
   const [users, setUsers] = useState<User[]>([])
+  const [userBullets, setUserBullets] = useState<BulletProps[]>([])
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
   const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
@@ -63,13 +65,13 @@ export default function Home() {
     const parsed = msg?.data?.split(" ");
     const type = Number(parsed?.[0]) ?? null;
     const userId = Number(parsed?.[1]) ?? null;
-    const data = parsed?.[2];
+    const data1 = parsed?.[2];
 
     if (type === null) return console.log("Invalid message received from server")
 
     if (type === MessageType.UserInit && userId !== null) {
       setMyUserId(userId)
-      const userStates = JSON.parse(data) as UserStates
+      const userStates = JSON.parse(data1) as UserStates
       return setUsers(Object.entries(userStates).map(([userId, { position, rotation }]) => ({ userId: Number(userId), position, rotation })) || [])
     }
     if (type === MessageType.UserJoin && userId !== null) {
@@ -81,8 +83,8 @@ export default function Home() {
     if (type === MessageType.UserLeave && userId !== null) {
       return setUsers(prev => prev.filter(u => u.userId !== userId))
     }
-    if (type === MessageType.UserMove && userId !== null && data) {
-      const position = data.split(",").map((v: string) => parseFloat(v))
+    if (type === MessageType.UserMove && userId !== null && data1) {
+      const position = data1.split(",").map((v: string) => parseFloat(v))
       return setUsers(prev => {
         const user = prev.find(u => u.userId === userId)
         const filteredUsers = prev.filter(u => u.userId !== userId)
@@ -90,12 +92,33 @@ export default function Home() {
         return [...filteredUsers, ...[userUpdate]]
       })
     }
-    if (type === MessageType.UserRotate && userId !== null && data) {
-      const rotation = data.split(",").map((v: string) => parseFloat(v))
+    if (type === MessageType.UserRotate && userId !== null && data1) {
+      const rotation = data1.split(",").map((v: string) => parseFloat(v))
       return setUsers(prev => {
         const user = prev.find(u => u.userId === userId)
         const filteredUsers = prev.filter(u => u.userId !== userId)
         const userUpdate = { userId, position: user?.position || [0, 0, 0], rotation: user?.rotation.map((v, i) => v + rotation[i]) || [0, 0, 0] }
+        return [...filteredUsers, ...[userUpdate]]
+      })
+    }
+    if (type === MessageType.UserShoot && userId !== null && data1) {
+      const data2 = parsed?.[3];
+      const initialPosition = data1.split(",").map((v: string) => parseFloat(v))
+      const cameraDirection = data2.split(",").map((v: string) => parseFloat(v))
+      return setUsers(prev => {
+        const user = prev.find(u => u.userId === userId)
+        const filteredUsers = prev.filter(u => u.userId !== userId)
+        const userUpdate = {
+          userId,
+          position:
+            user?.position || [0, 0, 0],
+          rotation: user?.rotation || [0, 0, 0],
+        }
+        setUserBullets(prev => [...prev, ...[{
+          initialPosition: arraytoVector3(initialPosition),
+          direction: arraytoVector3(cameraDirection),
+          userId: Number(userUpdate.userId)
+        }]])
         return [...filteredUsers, ...[userUpdate]]
       })
     }
@@ -162,10 +185,13 @@ export default function Home() {
   const [bullets, setBullets] = useState<Vector3[]>([])
 
   useEffect(() => {
-    if (jumpPressed) {
-      setBullets(prev => [...prev, ...[camera.position.clone()]])
+    if (jumpPressed && socket) {
+      const cameraPosition = camera.position.clone()
+      const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
+      setBullets(prev => [...prev, ...[cameraPosition]])
+      socket.send(`${MessageType.UserShoot} ${cameraPosition.toArray()} ${cameraDirection}`)
     }
-  }, [camera.position, jumpPressed])
+  }, [camera, jumpPressed, socket])
 
   return (
     <>
@@ -218,6 +244,14 @@ export default function Home() {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
             <User key={u.userId} userId={u.userId} position={u.position} rotation={u.rotation} />
+          )
+        })
+      }
+
+      {
+        userBullets.filter(user => user.userId !== myUserId).map((b, i) => {
+          return (
+            <Bullet key={`${b?.userId}-${i}`} initialPosition={b.initialPosition} direction={b.direction} />
           )
         })
       }
