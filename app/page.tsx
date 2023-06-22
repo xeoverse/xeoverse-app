@@ -189,13 +189,22 @@ export default function Home() {
   const [bullets, setBullets] = useState<Vector3[]>([])
 
   useEffect(() => {
-    if (jumpPressed && socket) {
+    if (jumpPressed && socket?.OPEN) {
       const cameraPosition = camera.position.clone()
       const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
       setBullets(prev => [...prev, ...[cameraPosition]])
       socket.send(`${MessageType.UserShoot} ${cameraPosition.toArray()} ${cameraDirection}`)
     }
   }, [camera, jumpPressed, socket])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setBullets([])
+    }, 1000 * 20)
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [bullets])
 
   return (
     <>
@@ -235,6 +244,7 @@ export default function Home() {
           )
         })
       }
+
       <Suspense fallback={null}>
         <RigidBody colliders="hull">
           <TestGLTF position={arraytoVector3([0, -1.1, 0])} />

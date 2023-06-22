@@ -1,6 +1,6 @@
 import { Sphere } from "@react-three/drei";
-import { RigidBody } from "@react-three/rapier";
-import { useRef, useEffect } from "react";
+import { RapierRigidBody, RigidBody } from "@react-three/rapier";
+import { useRef, useEffect, useState, memo } from "react";
 import { Vector3 } from "three";
 import { multiplyVector3 } from "../helpers";
 import { Camera } from "@react-three/fiber";
@@ -12,8 +12,9 @@ export interface BulletProps {
     userId?: number
 }
 
-const Bullet = ({ initialPosition, direction, camera, userId }: BulletProps) => {
-    const bullet = useRef<any>(null);
+const Bullet = memo(({ initialPosition, direction, camera, userId }: BulletProps) => {
+    const bullet = useRef<RapierRigidBody>(null);
+    const [isVisible, setIsVisible] = useState(true);
 
     useEffect(() => {
         const api = bullet.current;
@@ -22,16 +23,25 @@ const Bullet = ({ initialPosition, direction, camera, userId }: BulletProps) => 
                 const bulletDirection = (direction || camera?.getWorldDirection(new Vector3())) as Vector3
                 api.applyImpulse(multiplyVector3(bulletDirection, 0.5), true);
             }, 1000 / 60);
+            setTimeout(() => {
+                setIsVisible(false);
+            }, 1000 * 20);
         }
     }, [camera, direction]);
 
     return (
-        <RigidBody colliders={"ball"} restitution={1.5} ref={bullet} position={initialPosition}>
-            <Sphere args={[0.2, 6, 6]} castShadow>
-                <meshPhysicalMaterial attach="material" color="silver" />
-            </Sphere>
-        </RigidBody>
+        <>
+            {
+                isVisible ? (
+                    <RigidBody colliders={"ball"} restitution={1.5} ref={bullet} position={initialPosition} >
+                        <Sphere args={[0.2, 6, 6]} castShadow>
+                            <meshPhysicalMaterial attach="material" color="silver" />
+                        </Sphere>
+                    </RigidBody >
+                ) : null
+            }
+        </>
     )
-}
+});
 
 export default Bullet;
