@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Suspense, useMemo } from "react"
 import Menu from "./components/Menu"
+import SocketProvider from "./socket/SocketProvider"
 
 export enum Controls {
     forward = 'forward',
@@ -30,16 +31,18 @@ const ClientLayout = ({
     ], [])
 
     return (
-        <KeyboardControls map={map}>
-            <Canvas shadows>
-                <Suspense>
-                    <Physics>
-                        {children}
-                    </Physics>
-                </Suspense>
-            </Canvas>
-            <Menu />
-        </KeyboardControls>
+        <SocketProvider>
+            <KeyboardControls map={map}>
+                <Canvas shadows>
+                    <Suspense>
+                        <Physics>
+                            {children}
+                        </Physics>
+                    </Suspense>
+                </Canvas>
+                <Menu />
+            </KeyboardControls>
+        </SocketProvider>
     )
 }
 

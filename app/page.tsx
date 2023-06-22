@@ -1,11 +1,10 @@
 "use client"
 
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
 import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
-import useSocket from "./hooks/useSocket"
 import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
@@ -17,6 +16,7 @@ import { Model as RobotGLTF } from './components/gltf/Robot'
 import { Model as OfficeGLTF } from './components/gltf/Office'
 import { Model as FieldGLTF } from './components/gltf/Field'
 import Bullet, { BulletProps } from './components/Bullet'
+import { SocketContext } from './socket/SocketContext'
 
 interface User {
   userId: number,
@@ -61,7 +61,7 @@ export default function Home() {
 
   const { camera } = useThree()
 
-  const socket = useSocket()
+  const socket = useContext(SocketContext);
 
   const handleSocketMessage = useCallback((msg: any) => {
     if (!msg?.data) return;
