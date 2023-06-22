@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gltf": "npx gltfjsx ./public/gltf/field.glb --shadows --output ./app/components/gltf/Field.tsx --types --root ./public/ --debug",
+    "gltf": "npx gltfjsx ./public/gltf/village.glb --shadows --output ./app/components/gltf/Village.tsx --types --root ./public/ --debug",
     "postinstall": "prisma generate"
   },
   "devDependencies": {

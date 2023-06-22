@@ -15,6 +15,7 @@ import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
 import { Model as OfficeGLTF } from './components/gltf/Office'
 import { Model as FieldGLTF } from './components/gltf/Field'
+import { Model as VillageGLTF } from './components/gltf/Village'
 import { SocketContext } from './socket/SocketContext'
 import { MessageType, UserStates } from './socket/SocketProvider'
 import BulletsManager from './components/Bullets/BulletsManager'
@@ -189,20 +190,26 @@ export default function Home() {
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="hull" restitution={0.1}>
+        <RigidBody colliders="trimesh" restitution={0}>
           <RobotGLTF position={arraytoVector3([7, 0, -7])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="hull" restitution={0}>
-          <OfficeGLTF position={arraytoVector3([12, -0.5, -15])} />
+        <RigidBody colliders="trimesh" restitution={0}>
+          <OfficeGLTF position={arraytoVector3([12, 2, -15])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
         <RigidBody colliders="trimesh" restitution={0}>
-          <FieldGLTF position={arraytoVector3([-30, 1, -0])} />
+          <VillageGLTF position={arraytoVector3([-30, 10, -30])} rotation={[0, Math.PI, 0]} />
+        </RigidBody>
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RigidBody colliders="trimesh" restitution={0}>
+          <FieldGLTF position={arraytoVector3([-30, 1, 10])} />
         </RigidBody>
 
         <RigidBody colliders={"ball"} restitution={1.75} ref={soccerBall}>
