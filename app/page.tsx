@@ -16,6 +16,7 @@ import { Model as RobotGLTF } from './components/gltf/Robot'
 import { Model as OfficeGLTF } from './components/gltf/Office'
 import { Model as FieldGLTF } from './components/gltf/Field'
 import { Model as VillageGLTF } from './components/gltf/Village'
+import { Model as DragonGLTF } from './components/gltf/Dragon'
 import { SocketContext } from './socket/SocketContext'
 import { MessageType, UserStates } from './socket/SocketProvider'
 import BulletsManager from './components/Bullets/BulletsManager'
@@ -213,6 +214,12 @@ export default function Home() {
       <Suspense fallback={null}>
         <RigidBody colliders="trimesh" restitution={0}>
           <VillageGLTF position={arraytoVector3([-30, 10, -30])} rotation={[0, Math.PI, 0]} />
+        </RigidBody>
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RigidBody colliders="trimesh" restitution={0} gravityScale={0}>
+          <DragonGLTF position={arraytoVector3([20, 23, -200])} />
         </RigidBody>
       </Suspense>
 
