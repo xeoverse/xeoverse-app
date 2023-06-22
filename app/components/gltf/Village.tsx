@@ -109,4 +109,4 @@ export function Model(props: JSX.IntrinsicElements['group']) {
   )
 }
 
-useGLTF.preload('/gltf/hubs.glb')
+useGLTF.preload('/gltf/village.glb')
