@@ -12,3 +12,7 @@ export const arrayToEuler = (arr: number[]) => {
 export const multiplyVector3 = (vec: Vector3, multiplier: number) => {
     return new Vector3(vec.x * multiplier, vec.y * multiplier, vec.z * multiplier)
 }
+
+export const addVector3 = (vec: Vector3, add: Vector3) => {
+    return new Vector3(vec.x + add.x, vec.y + add.y, vec.z + add.z)
+}

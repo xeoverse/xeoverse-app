@@ -9,7 +9,7 @@ import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import User from './components/User'
-import { arrayToEuler, arraytoVector3, multiplyVector3 } from './helpers'
+import { addVector3, arrayToEuler, arraytoVector3, multiplyVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
@@ -36,6 +36,7 @@ export default function Home() {
   const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
 
   const escapePressed = useKeyboardControls<Controls>(state => state.escape)
+  const ePressed = useKeyboardControls<Controls>(state => state.e)
 
   const soccerBall = useRef<RapierRigidBody>(null);
 
@@ -145,6 +146,14 @@ export default function Home() {
       soccerBall.current.applyImpulse(multiplyVector3(cameraDirection, 4), true)
     }
   }, [camera])
+
+  useEffect(() => {
+    if (ePressed) {
+      const cameraDirection = camera.getWorldDirection(new Vector3())
+      const newPosition = addVector3(camera.position, multiplyVector3(cameraDirection, 8))
+      camera.position.set(...newPosition.toArray())
+    }
+  }, [camera, ePressed])
 
   return (
     <>

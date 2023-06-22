@@ -14,6 +14,7 @@ export enum Controls {
     right = 'right',
     jump = 'jump',
     escape = 'escape',
+    e = 'e',
 }
 
 const ClientLayout = ({
@@ -28,6 +29,7 @@ const ClientLayout = ({
         { name: Controls.right, keys: ['ArrowRight', 'KeyD'] },
         { name: Controls.jump, keys: ['Space'] },
         { name: Controls.escape, keys: ['Escape'] },
+        { name: Controls.e, keys: ['KeyE'] }
     ], [])
 
     return (
