@@ -1,6 +1,26 @@
 import React, { useEffect } from "react";
 import { SocketContext, socket } from "./SocketContext";
 
+export enum MessageType {
+    UserInit,
+    UserJoin,
+    UserLeave,
+    UserMove,
+    UserRotate,
+    UserShoot,
+}
+
+export type UserStates = Record<number, { position: number[], rotation: number[] }>
+
+export interface SocketMessage {
+    type: MessageType
+    userId: number
+    position: number[]
+    rotation: number[]
+    data: string
+    userStates: UserStates
+}
+
 interface SocketProviderProps {
     children: React.ReactNode;
 }

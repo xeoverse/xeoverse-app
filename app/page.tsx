@@ -15,8 +15,9 @@ import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
 import { Model as OfficeGLTF } from './components/gltf/Office'
 import { Model as FieldGLTF } from './components/gltf/Field'
-import Bullet, { BulletProps } from './components/Bullet'
 import { SocketContext } from './socket/SocketContext'
+import { MessageType, UserStates } from './socket/SocketProvider'
+import BulletsManager from './components/Bullets/BulletsManager'
 
 interface User {
   userId: number,
@@ -24,29 +25,8 @@ interface User {
   rotation: number[]
 }
 
-enum MessageType {
-  UserInit,
-  UserJoin,
-  UserLeave,
-  UserMove,
-  UserRotate,
-  UserShoot,
-}
-
-type UserStates = Record<number, { position: number[], rotation: number[] }>
-
-export interface SocketMessage {
-  type: MessageType
-  userId: number
-  position: number[]
-  rotation: number[]
-  data: string
-  userStates: UserStates
-}
-
 export default function Home() {
   const [users, setUsers] = useState<User[]>([])
-  const [userBullets, setUserBullets] = useState<BulletProps[]>([])
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
   const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
@@ -55,7 +35,6 @@ export default function Home() {
   const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
 
   const escapePressed = useKeyboardControls<Controls>(state => state.escape)
-  const jumpPressed = useKeyboardControls<Controls>(state => state.jump)
 
   const soccerBall = useRef<RapierRigidBody>(null);
 
@@ -74,6 +53,7 @@ export default function Home() {
     if (type === null) return console.log("Invalid message received from server")
 
     if (type === MessageType.UserInit && userId !== null) {
+      console.log("UserInit", userId)
       setMyUserId(userId)
       const userStates = JSON.parse(data1) as UserStates
       return setUsers(Object.entries(userStates).map(([userId, { position, rotation }]) => ({ userId: Number(userId), position, rotation })) || [])
@@ -105,27 +85,6 @@ export default function Home() {
         return [...filteredUsers, ...[userUpdate]]
       })
     }
-    if (type === MessageType.UserShoot && userId !== null && data1) {
-      const data2 = parsed?.[3];
-      const initialPosition = data1.split(",").map((v: string) => parseFloat(v))
-      const cameraDirection = data2.split(",").map((v: string) => parseFloat(v))
-      return setUsers(prev => {
-        const user = prev.find(u => u.userId === userId)
-        const filteredUsers = prev.filter(u => u.userId !== userId)
-        const userUpdate = {
-          userId,
-          position:
-            user?.position || [0, 0, 0],
-          rotation: user?.rotation || [0, 0, 0],
-        }
-        setUserBullets(prev => [...prev, ...[{
-          initialPosition: arraytoVector3(initialPosition),
-          direction: arraytoVector3(cameraDirection),
-          userId: Number(userUpdate.userId)
-        }]])
-        return [...filteredUsers, ...[userUpdate]]
-      })
-    }
   }, [])
 
   useEffect(() => {
@@ -152,7 +111,7 @@ export default function Home() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (myUserId && socket) {
+      if (myUserId && socket?.OPEN) {
         const prevPosition = myPosition
         const newPosition = camera.position.toArray()
         setMyPosition(newPosition)
@@ -186,26 +145,6 @@ export default function Home() {
     }
   }, [camera])
 
-  const [bullets, setBullets] = useState<Vector3[]>([])
-
-  useEffect(() => {
-    if (jumpPressed && socket?.OPEN) {
-      const cameraPosition = camera.position.clone()
-      const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
-      setBullets(prev => [...prev, ...[cameraPosition]])
-      socket.send(`${MessageType.UserShoot} ${cameraPosition.toArray()} ${cameraDirection}`)
-    }
-  }, [camera, jumpPressed, socket])
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setBullets([])
-    }, 1000 * 20)
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [bullets])
-
   return (
     <>
       <ambientLight intensity={0.25} />
@@ -236,14 +175,6 @@ export default function Home() {
           <meshBasicMaterial attach="material" color="brown" />
         </DreiBox>
       </RigidBody>
-
-      {
-        bullets.map((position, i) => {
-          return (
-            <Bullet key={i} initialPosition={position} camera={camera} />
-          )
-        })
-      }
 
       <Suspense fallback={null}>
         <RigidBody colliders="hull">
@@ -289,13 +220,7 @@ export default function Home() {
         })
       }
 
-      {
-        userBullets.filter(user => user.userId !== myUserId).map((b, i) => {
-          return (
-            <Bullet key={`${b?.userId}-${i}`} initialPosition={b.initialPosition} direction={b.direction} />
-          )
-        })
-      }
+      <BulletsManager />
 
       <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={4} />
 
