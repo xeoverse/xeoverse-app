@@ -27,11 +27,11 @@ interface User {
   rotation: number[]
 }
 
-export enum WorldItemType {
+enum WorldItemType {
   Box,
 }
 
-export interface WorldItem {
+interface WorldItem {
   id: number,
   userId?: number,
   position: number[]
