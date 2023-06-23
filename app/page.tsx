@@ -245,43 +245,43 @@ export default function Home() {
 
       <Suspense fallback={null}>
         <RigidBody colliders="hull">
-          <TestGLTF position={arraytoVector3([0, -1.1, 0])} />
+          <TestGLTF position={arraytoVector3([0, -1, 0])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
         <RigidBody colliders="hull">
-          <ChairGLTF position={arraytoVector3([7, -1.1, 4])} />
+          <ChairGLTF position={arraytoVector3([7, -1, 4])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0}>
-          <RobotGLTF position={arraytoVector3([7, 0, -7])} />
+        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
+          <RobotGLTF position={arraytoVector3([7, -1, -7])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0}>
-          <OfficeGLTF position={arraytoVector3([12, 2, -15])} />
+        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
+          <OfficeGLTF position={arraytoVector3([12, -1, -15])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0}>
+        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
           <VillageGLTF position={arraytoVector3([-30, 10, -30])} rotation={[0, Math.PI, 0]} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0} gravityScale={0}>
-          <DragonGLTF position={arraytoVector3([20, 23, -200])} />
+        <RigidBody colliders="trimesh" restitution={0} gravityScale={0} lockRotations lockTranslations>
+          <DragonGLTF position={arraytoVector3([20, 10, -180])} />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0}>
-          <FieldGLTF position={arraytoVector3([-30, 1, 10])} />
+        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
+          <FieldGLTF position={arraytoVector3([-30, -0.9, 10])} />
         </RigidBody>
 
         <RigidBody colliders={"ball"} restitution={1.75} ref={soccerBall}>
