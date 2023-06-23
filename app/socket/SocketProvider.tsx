@@ -8,6 +8,7 @@ export enum MessageType {
     UserMove,
     UserRotate,
     UserShoot,
+    WorldItem
 }
 
 export type UserStates = Record<number, { position: number[], rotation: number[] }>

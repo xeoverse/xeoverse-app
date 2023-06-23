@@ -27,8 +27,21 @@ interface User {
   rotation: number[]
 }
 
+export enum WorldItemType {
+  Box,
+}
+
+export interface WorldItem {
+  id: number,
+  userId?: number,
+  position: number[]
+  rotation: number[]
+  type: WorldItemType
+}
+
 export default function Home() {
   const [users, setUsers] = useState<User[]>([])
+  const [worldItems, setWorldItems] = useState<WorldItem[]>([])
 
   const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
   const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
@@ -38,6 +51,7 @@ export default function Home() {
 
   const escapePressed = useKeyboardControls<Controls>(state => state.escape)
   const ePressed = useKeyboardControls<Controls>(state => state.e)
+  const qPressed = useKeyboardControls<Controls>(state => state.q)
 
   const soccerBall = useRef<RapierRigidBody>(null);
 
@@ -88,7 +102,49 @@ export default function Home() {
         return [...filteredUsers, ...[userUpdate]]
       })
     }
+    if (type === MessageType.WorldItem && data1) {
+      const data2 = parsed?.[3];
+      const data3 = parsed?.[4];
+      const data4 = parsed?.[5];
+
+      const id = Number(data1)
+      const type = Number(data2)
+
+      const position = data3.split(",").map((v: string) => parseFloat(v)) as number[]
+      const rotation = data4.split(",").map((v: string) => parseFloat(v)) as number[]
+
+      return setWorldItems(prev => {
+        const filteredWorldItems = prev.filter(u => u.id !== id)
+        const worldItemUpdate = { id, position, rotation, type: type as WorldItemType }
+        return [...filteredWorldItems, ...[worldItemUpdate]]
+      })
+    }
   }, [])
+
+  useEffect(() => {
+    if (qPressed) {
+      const cameraDirection = camera.getWorldDirection(new Vector3())
+      const distance = 3
+      const position = camera.position.clone().add(cameraDirection.multiplyScalar(distance)).toArray()
+
+      const isTouching = worldItems.some(wi => {
+        const distance = Math.sqrt(wi.position.map((v, i) => v - position[i]).map(v => v * v).reduce((a, b) => a + b, 0))
+        return distance < 1
+      })
+
+      if (isTouching) return
+
+      const snapToGrid = (n: number) => Math.round(n * 2) / 2
+      const snappedPosition = position.map(snapToGrid)
+
+      socket?.send(`${MessageType.WorldItem} ${myUserId} ${snappedPosition.join(",")} ${myRotation.join(",")} ${'box'}`)
+      setWorldItems(prev => {
+        const id = prev.length + 1
+        const worldItemUpdate = { id, position: snappedPosition, rotation: myRotation, type: WorldItemType.Box }
+        return [...prev, ...[worldItemUpdate]]
+      })
+    }
+  }, [camera, qPressed, myRotation, myUserId, socket, worldItems])
 
   useEffect(() => {
     if (escapePressed) {
@@ -234,6 +290,24 @@ export default function Home() {
           </Sphere>
         </RigidBody>
       </Suspense>
+
+      {
+        worldItems.map((item, i) => {
+          return (
+            <Suspense key={i} fallback={null}>
+              <RigidBody colliders="hull" restitution={0} gravityScale={0} lockRotations lockTranslations>
+                {
+                  item.type === WorldItemType.Box && (
+                    <DreiBox position={arraytoVector3(item.position)} args={[1, 1, 1]} castShadow receiveShadow>
+                      <meshPhysicalMaterial attach="material" color="green" />
+                    </DreiBox>
+                  )
+                }
+              </RigidBody>
+            </Suspense>
+          )
+        })
+      }
 
       {
         users.filter(user => user.userId !== myUserId).map((u) => {

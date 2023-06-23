@@ -15,6 +15,23 @@ export enum Controls {
     jump = 'jump',
     escape = 'escape',
     e = 'e',
+    q = 'q'
+}
+
+const Cursor = () => {
+    return (
+        <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: 8,
+            height: 8,
+            backgroundColor: 'red',
+            transform: 'translate(-50%, -50%)',
+            borderRadius: '50%',
+            zIndex: 999999999
+        }} />
+    )
 }
 
 const ClientLayout = ({
@@ -29,7 +46,8 @@ const ClientLayout = ({
         { name: Controls.right, keys: ['ArrowRight', 'KeyD'] },
         { name: Controls.jump, keys: ['Space'] },
         { name: Controls.escape, keys: ['Escape'] },
-        { name: Controls.e, keys: ['KeyE'] }
+        { name: Controls.e, keys: ['KeyE'] },
+        { name: Controls.q, keys: ['KeyQ'] }
     ], [])
 
     return (
@@ -43,6 +61,7 @@ const ClientLayout = ({
                     </Suspense>
                 </Canvas>
                 <Menu />
+                <Cursor />
             </KeyboardControls>
         </SocketProvider>
     )
