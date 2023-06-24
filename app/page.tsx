@@ -284,8 +284,8 @@ export default function Home() {
           <FieldGLTF position={arraytoVector3([-30, -0.9, 10])} />
         </RigidBody>
 
-        <RigidBody colliders={"ball"} restitution={1.75} ref={soccerBall}>
-          <Sphere position={[-30, 2, 0]} args={[0.5, 20, 20]} onClick={handleSoccerBallClick} castShadow receiveShadow>
+        <RigidBody colliders={"ball"} restitution={1} ref={soccerBall}>
+          <Sphere position={[-30, 2, 0]} args={[0.4, 10, 10]} onClick={handleSoccerBallClick} castShadow receiveShadow>
             <meshPhysicalMaterial attach="material" color="white" />
           </Sphere>
         </RigidBody>

@@ -4,7 +4,7 @@ import { KeyboardControls, KeyboardControlsEntry } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Suspense, useMemo } from "react"
-import Menu from "./components/Menu"
+import Hud from "./components/Hud"
 import SocketProvider from "./socket/SocketProvider"
 
 export enum Controls {
@@ -15,7 +15,12 @@ export enum Controls {
     jump = 'jump',
     escape = 'escape',
     e = 'e',
-    q = 'q'
+    q = 'q',
+    one = 'one',
+    two = 'two',
+    three = 'three',
+    tab = 'tab',
+    tilde = 'tilde',
 }
 
 const Cursor = () => {
@@ -47,7 +52,11 @@ const ClientLayout = ({
         { name: Controls.jump, keys: ['Space'] },
         { name: Controls.escape, keys: ['Escape'] },
         { name: Controls.e, keys: ['KeyE'] },
-        { name: Controls.q, keys: ['KeyQ'] }
+        { name: Controls.q, keys: ['KeyQ'] },
+        { name: Controls.one, keys: ['Digit1'] },
+        { name: Controls.two, keys: ['Digit2'] },
+        { name: Controls.three, keys: ['Digit3'] },
+        { name: Controls.tilde, keys: ['Backquote'] },
     ], [])
 
     return (
@@ -57,10 +66,10 @@ const ClientLayout = ({
                     <Suspense>
                         <Physics>
                             {children}
+                            <Hud />
                         </Physics>
                     </Suspense>
                 </Canvas>
-                <Menu />
                 <Cursor />
             </KeyboardControls>
         </SocketProvider>
