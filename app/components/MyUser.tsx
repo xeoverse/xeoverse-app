@@ -52,6 +52,7 @@ const MyUser = ({ userId }: MyUserProps) => {
         const handleMouseMove = (event: MouseEvent) => {
             if (!controls.current.isLocked) return
             const sensitivity = 0.001
+
             const prevRotationX = rotationXSpring.get()
             const prevRotationY = rotationYSpring.get()
 
@@ -63,10 +64,8 @@ const MyUser = ({ userId }: MyUserProps) => {
 
             const rotationDiff = [newRotationX - prevRotationX, newRotationY - prevRotationY, 0]
 
-            if (userId && socket?.OPEN) {
-                if (rotationDiff.some(v => v !== 0)) {
-                    socket.send(`${MessageType.UserRotate} ${rotationDiff}`)
-                }
+            if (userId && socket?.OPEN && rotationDiff.some(v => v !== 0)) {
+                socket.send(`${MessageType.UserRotate} ${rotationDiff}`)
             }
         }
         document.addEventListener('mousemove', handleMouseMove)
@@ -87,54 +86,75 @@ const MyUser = ({ userId }: MyUserProps) => {
             }
         }
 
-        const cameraDirection = camera.getWorldDirection(new Vector3()).clone().multiplyScalar(5)
-        const reverseCameraDirection = cameraDirection.clone().multiplyScalar(-1);
+        const cameraDirection = camera.getWorldDirection(new Vector3()).clone()
+        const velocity = userRef.current?.linvel()
+        const upwardVelocity = new Vector3(0, velocity?.y ?? 0, 0)
 
         if (forwardPressed && leftPressed) {
-            cameraDirection.applyAxisAngle(new Vector3(0, 1, 1), Math.PI / 4)
-            return userRef.current?.setLinvel(cameraDirection, true);
+            cameraDirection.multiplyScalar(-1)
+            cameraDirection.applyAxisAngle(new Vector3(0, -1, 1), -Math.PI / 4)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(-5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (forwardPressed && rightPressed) {
-            cameraDirection.applyAxisAngle(new Vector3(0, 1, 1), -Math.PI / 4)
-            return userRef.current?.setLinvel(cameraDirection, true);
-        }
-        if (forwardPressed && jumpPressed) {
-            const linvel = userRef?.current?.linvel()
-            const vector3 = new Vector3(linvel?.x, (linvel?.y ?? 0) + 0.5, linvel?.z)
-            return userRef.current?.setLinvel(vector3, true);
+            cameraDirection.multiplyScalar(-1)
+            cameraDirection.applyAxisAngle(new Vector3(0, -1, 1), Math.PI / 4)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(-5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (forwardPressed) {
-            return userRef.current?.setLinvel(cameraDirection, true);
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (backPressed && leftPressed) {
-            reverseCameraDirection.applyAxisAngle(new Vector3(0, -1, 1), Math.PI / 4)
-            return userRef.current?.setLinvel(reverseCameraDirection, true);
+            cameraDirection.negate()
+            cameraDirection.multiplyScalar(-1)
+            cameraDirection.applyAxisAngle(new Vector3(0, -1, 1), Math.PI / 4)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(-5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (backPressed && rightPressed) {
-            reverseCameraDirection.applyAxisAngle(new Vector3(0, -1, 1), -Math.PI / 4)
-            return userRef.current?.setLinvel(reverseCameraDirection, true);
+            cameraDirection.negate()
+            cameraDirection.multiplyScalar(-1)
+            cameraDirection.applyAxisAngle(new Vector3(0, -1, 1), -Math.PI / 4)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(-5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (backPressed) {
-            return userRef.current?.setLinvel(reverseCameraDirection, true);
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(-5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (leftPressed) {
-            cameraDirection.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-            return userRef.current?.setLinvel(cameraDirection, true);
+            cameraDirection.applyAxisAngle(new Vector3(0, 1, 0), Math.PI / 4)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         }
         if (rightPressed) {
             cameraDirection.applyAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
-            return userRef.current?.setLinvel(cameraDirection, true);
-        }
-        if (jumpPressed) {
-            const linvel = userRef?.current?.linvel()
-            const vector3 = new Vector3(linvel?.x, (linvel?.y ?? 0) + 1, linvel?.z)
-            userRef.current?.setLinvel(vector3, true)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(5)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
         } else {
             setTimeout(() => {
                 userRef?.current?.resetForces(true)
             }, 100)
         }
     })
+
+    useEffect(() => {
+        if (jumpPressed) {
+            const linvel = userRef?.current?.linvel()
+            const vector3 = new Vector3(linvel?.x, (linvel?.y ?? 0) + 5, linvel?.z)
+            return userRef.current?.setLinvel(vector3, true)
+        }
+    }, [jumpPressed])
 
     return (
         <>
