@@ -21,6 +21,7 @@ export enum Controls {
     three = 'three',
     tab = 'tab',
     tilde = 'tilde',
+    shift = 'shift'
 }
 
 const Cursor = () => {
@@ -57,6 +58,7 @@ const ClientLayout = ({
         { name: Controls.two, keys: ['Digit2'] },
         { name: Controls.three, keys: ['Digit3'] },
         { name: Controls.tilde, keys: ['Backquote'] },
+        { name: Controls.shift, keys: ['ShiftLeft'] },
     ], [])
 
     return (

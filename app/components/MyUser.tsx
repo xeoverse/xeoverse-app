@@ -26,6 +26,7 @@ const MyUser = ({ userId }: MyUserProps) => {
     const leftPressed = useKeyboardControls<Controls>(state => state.left)
     const rightPressed = useKeyboardControls<Controls>(state => state.right)
     const jumpPressed = useKeyboardControls<Controls>(state => state.jump)
+    const shiftPressed = useKeyboardControls<Controls>(state => state.shift)
 
     const rotationXSpring = useSpringValue(0)
     const rotationYSpring = useSpringValue(0)
@@ -104,6 +105,11 @@ const MyUser = ({ userId }: MyUserProps) => {
             const newVelocity = forwardVelocity.add(upwardVelocity)
             return userRef.current?.setLinvel(newVelocity, true)
         }
+        if (forwardPressed && shiftPressed) {
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(20)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
+        }
         if (forwardPressed) {
             const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(5)
             const newVelocity = forwardVelocity.add(upwardVelocity)
@@ -155,6 +161,17 @@ const MyUser = ({ userId }: MyUserProps) => {
             return userRef.current?.setLinvel(vector3, true)
         }
     }, [jumpPressed])
+
+    useEffect(() => {
+        if (shiftPressed && !forwardPressed) {
+            const cameraDirection = camera.getWorldDirection(new Vector3()).clone()
+            const velocity = userRef.current?.linvel()
+            const upwardVelocity = new Vector3(0, velocity?.y ?? 0, 0)
+            const forwardVelocity = new Vector3(cameraDirection.x, 0, cameraDirection.z).normalize().multiplyScalar(20)
+            const newVelocity = forwardVelocity.add(upwardVelocity)
+            return userRef.current?.setLinvel(newVelocity, true)
+        }
+    }, [camera, forwardPressed, shiftPressed])
 
     return (
         <>
