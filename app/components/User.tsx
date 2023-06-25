@@ -1,8 +1,9 @@
-import { Cone, Text } from "@react-three/drei";
+import { Sphere, Text } from "@react-three/drei";
 import { arrayToEuler, arraytoVector3 } from "../helpers";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useSpringValue } from '@react-spring/web'
+import { RigidBody } from "@react-three/rapier";
 
 interface UserProps {
     position: number[]
@@ -44,9 +45,11 @@ const User = ({ position, rotation, userId }: UserProps) => {
             <Text color="yellow" fontSize={0.1} anchorX="center" anchorY={-0.6} ref={textRef}>
                 {userId}
             </Text>
-            <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])}>
-                <meshPhysicalMaterial attach="material" color="gold" />
-            </Cone>
+            <RigidBody colliders="cuboid">
+                <Sphere castShadow args={[0.5, 10, 10]}>
+                    <meshPhysicalMaterial attach="material" color="gold" />
+                </Sphere>
+            </RigidBody>
         </group>
     );
 };

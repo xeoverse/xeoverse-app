@@ -3,12 +3,12 @@
 import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import Floor from "./components/Floor"
-import { Cone, Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
+import { Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
 import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import User from './components/User'
-import { arrayToEuler, arraytoVector3, multiplyVector3 } from './helpers'
+import { arraytoVector3, multiplyVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
@@ -19,7 +19,7 @@ import { Model as DragonGLTF } from './components/gltf/Dragon'
 import { SocketContext } from './socket/SocketContext'
 import { MessageType, UserStates } from './socket/SocketProvider'
 import BulletsManager from './components/Bullets/BulletsManager'
-import FirstPersonCamera from './components/FirstPersonCamera'
+import MyUser from './components/MyUser'
 
 interface User {
   userId: number,
@@ -266,6 +266,8 @@ export default function Home() {
         })
       }
 
+      <MyUser userId={myUserId} />
+
       {
         users.filter(user => user.userId !== myUserId).map((u) => {
           return (
@@ -275,14 +277,6 @@ export default function Home() {
       }
 
       <BulletsManager />
-
-      <FirstPersonCamera myUserId={myUserId} />
-
-      <group position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)}>
-        <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])}>
-          <meshPhysicalMaterial attach="material" transparent opacity={0} />
-        </Cone>
-      </group>
 
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       <Floor />
