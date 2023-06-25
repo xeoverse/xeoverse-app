@@ -2,7 +2,7 @@ import { Cone, Text } from "@react-three/drei";
 import { arrayToEuler, arraytoVector3 } from "../helpers";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useSpring } from "framer-motion"
+import { useSpringValue } from '@react-spring/web'
 
 interface UserProps {
     position: number[]
@@ -13,13 +13,13 @@ interface UserProps {
 const User = ({ position, rotation, userId }: UserProps) => {
     const textRef = useRef<any>();
 
-    const positionXSpring = useSpring(position[0])
-    const positionYSpring = useSpring(position[1])
-    const positionZSpring = useSpring(position[2])
+    const positionXSpring = useSpringValue(position[0])
+    const positionYSpring = useSpringValue(position[1])
+    const positionZSpring = useSpringValue(position[2])
 
-    const rotationXSpring = useSpring(rotation[0])
-    const rotationYSpring = useSpring(rotation[1])
-    const rotationZSpring = useSpring(rotation[2])
+    const rotationXSpring = useSpringValue(rotation[0])
+    const rotationYSpring = useSpringValue(rotation[1])
+    const rotationZSpring = useSpringValue(rotation[2])
 
     useFrame(({ camera }) => {
         if (textRef.current) {

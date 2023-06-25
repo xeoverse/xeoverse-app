@@ -1,6 +1,6 @@
 "use client"
 
-import { KeyboardControls, KeyboardControlsEntry } from "@react-three/drei"
+import { KeyboardControls, KeyboardControlsEntry, Stats } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { Suspense, useMemo } from "react"
@@ -63,12 +63,11 @@ const ClientLayout = ({
         <SocketProvider>
             <KeyboardControls map={map}>
                 <Canvas shadows>
-                    <Suspense>
-                        <Physics>
-                            {children}
-                            <Hud />
-                        </Physics>
-                    </Suspense>
+                    <Physics>
+                        {children}
+                        <Hud />
+                    </Physics>
+                    <Stats />
                 </Canvas>
                 <Cursor />
             </KeyboardControls>

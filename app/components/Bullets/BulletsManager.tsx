@@ -1,8 +1,6 @@
-import { useKeyboardControls } from "@react-three/drei";
 import { useEffect, useState } from "react";
 import { Vector3 } from "three";
 import { useThree } from "@react-three/fiber";
-import { Controls } from "../../clientLayout";
 import { socket } from "../../socket/SocketContext";
 import Bullet, { BulletProps } from "./Bullet";
 import { MessageType } from "../../socket/SocketProvider";
@@ -10,8 +8,6 @@ import { arraytoVector3 } from "../../helpers";
 
 const BulletsManager = () => {
     const [bullets, setBullets] = useState<BulletProps[]>([])
-    const jumpPressed = useKeyboardControls<Controls>(state => state.jump)
-
     const { camera } = useThree()
 
     useEffect(() => {
@@ -41,13 +37,19 @@ const BulletsManager = () => {
     }, [])
 
     useEffect(() => {
-        if (jumpPressed && socket?.OPEN) {
-            const cameraPosition = camera.position.clone()
-            const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
-            setBullets(prev => [...prev, ...[{ initialPosition: cameraPosition, direction: arraytoVector3(cameraDirection), userId: 0 }]])
-            socket.send(`${MessageType.UserShoot} ${cameraPosition.toArray()} ${cameraDirection}`)
+        const mouseClick = (e: MouseEvent) => {
+            if (e.button === 0) {
+                const cameraPosition = camera.position.clone()
+                const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
+                setBullets(prev => [...prev, ...[{ initialPosition: cameraPosition, direction: arraytoVector3(cameraDirection), userId: 0 }]])
+                socket.send(`${MessageType.UserShoot} ${cameraPosition.toArray()} ${cameraDirection}`)
+            }
         }
-    }, [camera, jumpPressed])
+        window.addEventListener('mousedown', mouseClick)
+        return () => {
+            window.removeEventListener('mousedown', mouseClick)
+        }
+    }, [camera])
 
     useEffect(() => {
         const timeout = setTimeout(() => {

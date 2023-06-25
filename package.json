@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@prisma/client": "^4.16.0",
+    "@react-spring/web": "^9.7.2",
     "@react-three/drei": "^9.77.0",
     "@react-three/fiber": "^8.13.3",
     "@react-three/rapier": "^1.1.1",

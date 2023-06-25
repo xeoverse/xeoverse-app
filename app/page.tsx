@@ -1,15 +1,15 @@
 "use client"
 
 import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { useThree } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import Box from "./components/Box"
 import Floor from "./components/Floor"
-import { Cone, FirstPersonControls, Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
+import { Cone, Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
 import { Vector3 } from "three"
 import { RapierRigidBody, RigidBody } from "@react-three/rapier"
 import { Controls } from "./clientLayout"
 import User from './components/User'
-import { addVector3, arrayToEuler, arraytoVector3, multiplyVector3 } from './helpers'
+import { arrayToEuler, arraytoVector3, multiplyVector3 } from './helpers'
 import { Model as TestGLTF } from './components/gltf/TestGLTF'
 import { Model as ChairGLTF } from './components/gltf/Chair'
 import { Model as RobotGLTF } from './components/gltf/Robot'
@@ -20,6 +20,7 @@ import { Model as DragonGLTF } from './components/gltf/Dragon'
 import { SocketContext } from './socket/SocketContext'
 import { MessageType, UserStates } from './socket/SocketProvider'
 import BulletsManager from './components/Bullets/BulletsManager'
+import FirstPersonCamera from './components/FirstPersonCamera'
 
 interface User {
   userId: number,
@@ -47,10 +48,6 @@ export default function Home() {
   const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
   const [myUserId, setMyUserId] = useState<number | null>(null)
 
-  const [isFirstPerson, setIsFirstPerson] = useState<boolean>(true)
-
-  const escapePressed = useKeyboardControls<Controls>(state => state.escape)
-  const ePressed = useKeyboardControls<Controls>(state => state.e)
   const qPressed = useKeyboardControls<Controls>(state => state.q)
 
   const soccerBall = useRef<RapierRigidBody>(null);
@@ -147,12 +144,6 @@ export default function Home() {
   }, [camera, qPressed, myRotation, myUserId, socket, worldItems])
 
   useEffect(() => {
-    if (escapePressed) {
-      setIsFirstPerson(prev => !prev)
-    }
-  }, [escapePressed])
-
-  useEffect(() => {
     if (socket) {
       socket.addEventListener('message', (data) => {
         handleSocketMessage(data)
@@ -168,35 +159,6 @@ export default function Home() {
     }
   }, [handleSocketMessage, socket])
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (myUserId && socket?.OPEN) {
-        const prevPosition = myPosition
-        const newPosition = camera.position.toArray()
-        setMyPosition(newPosition)
-
-        const prevRotation = myRotation
-        const newRotation = camera.rotation.toArray().slice(0, 3) as number[];
-        setMyRotation(newRotation)
-
-        const rotationDiff = newRotation.map((v, i) => v - prevRotation[i])
-        const positionDiff = newPosition.map((v, i) => v - prevPosition[i])
-
-        if (rotationDiff.some(v => v !== 0)) {
-          socket.send(`${MessageType.UserRotate} ${rotationDiff}`)
-        }
-
-        if (positionDiff.some(v => v !== 0)) {
-          socket.send(`${MessageType.UserMove} ${positionDiff}`)
-        }
-      }
-    }, 1000 / 60)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [camera.position, camera.rotation, myPosition, myRotation, myUserId, socket])
-
   const handleSoccerBallClick = useCallback(() => {
     if (soccerBall.current) {
       const cameraDirection = camera.getWorldDirection(new Vector3())
@@ -204,13 +166,12 @@ export default function Home() {
     }
   }, [camera])
 
-  useEffect(() => {
-    if (ePressed) {
-      const cameraDirection = camera.getWorldDirection(new Vector3())
-      const newPosition = addVector3(camera.position, multiplyVector3(cameraDirection, 8))
-      camera.position.set(...newPosition.toArray())
+  useFrame(() => {
+    if (camera) {
+      setMyPosition(camera.position.toArray() as [number, number, number])
+      setMyRotation(camera.rotation.toArray() as [number, number, number])
     }
-  }, [camera, ePressed])
+  })
 
   return (
     <>
@@ -245,7 +206,7 @@ export default function Home() {
 
       <Suspense fallback={null}>
         <RigidBody colliders="hull">
-          <TestGLTF position={arraytoVector3([0, -1, 0])} />
+          <TestGLTF position={arraytoVector3([0, -1, -5])} />
         </RigidBody>
       </Suspense>
 
@@ -319,11 +280,11 @@ export default function Home() {
 
       <BulletsManager />
 
-      <FirstPersonControls makeDefault lookSpeed={0.15} enabled={isFirstPerson} movementSpeed={4} />
+      <FirstPersonCamera myUserId={myUserId} />
 
       <group position={arraytoVector3(myPosition)} rotation={arrayToEuler(myRotation)}>
-        <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])} >
-          <meshPhysicalMaterial attach="material" color="gold" />
+        <Cone castShadow args={[0.3, 0.7, 8]} rotation={arrayToEuler([-90, 0, 0])}>
+          <meshPhysicalMaterial attach="material" transparent opacity={0} />
         </Cone>
       </group>
 
