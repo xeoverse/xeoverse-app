@@ -39,10 +39,10 @@ const BulletsManager = () => {
     useEffect(() => {
         const mouseClick = (e: MouseEvent) => {
             if (e.button === 0) {
-                const cameraPosition = camera.position.clone().add(new Vector3(0, 0, -3))
                 const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
-                setBullets(prev => [...prev, ...[{ initialPosition: cameraPosition, direction: arraytoVector3(cameraDirection), userId: 0 }]])
-                socket.send(`${MessageType.UserShoot} ${cameraPosition.toArray()} ${cameraDirection}`)
+                const frontOfMe = camera.position.clone().add(arraytoVector3(cameraDirection).multiplyScalar(2))
+                setBullets(prev => [...prev, ...[{ initialPosition: frontOfMe, direction: arraytoVector3(cameraDirection), userId: 0 }]])
+                socket.send(`${MessageType.UserShoot} ${frontOfMe.toArray()} ${cameraDirection}`)
             }
         }
         window.addEventListener('mousedown', mouseClick)
