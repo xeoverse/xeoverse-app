@@ -1,4 +1,5 @@
 # xeoverse-app
+[![Discord](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/Rf9hpKWbVA)
 
 ## Why do all metaverses suck? 
 
