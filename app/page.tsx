@@ -2,7 +2,6 @@
 
 import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import Box from "./components/Box"
 import Floor from "./components/Floor"
 import { Cone, Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
 import { Vector3 } from "three"
@@ -188,9 +187,6 @@ export default function Home() {
         position={[100, 80, 75]}
         rotation={[-Math.PI / 2, 0, 0]}
       />
-
-      <Box position={[1.2, 2, -5]} color="blue" />
-      <Box position={[-1.2, 2, -8]} color="green" />
 
       <RigidBody colliders={"hull"} restitution={2}>
         <Sphere position={[-5, 1, -10]} args={[2, 5, 5]}>
