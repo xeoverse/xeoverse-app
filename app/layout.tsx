@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Xeoverse',
-  description: 'Xeoverse',
+  description: 'Welcome to the Xeoverse.',
 }
 
 export default function RootLayout({

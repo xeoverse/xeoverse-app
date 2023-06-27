@@ -3,8 +3,10 @@
 import { KeyboardControls, KeyboardControlsEntry, Stats } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
-import { Suspense, useMemo } from "react"
+import { useMemo } from "react"
 import Hud from "./components/Hud"
+import { Provider as ReduxProvider } from "react-redux"
+import { store } from "./redux/store"
 import SocketProvider from "./socket/SocketProvider"
 
 export enum Controls {
@@ -62,18 +64,20 @@ const ClientLayout = ({
     ], [])
 
     return (
-        <SocketProvider>
-            <KeyboardControls map={map}>
-                <Canvas shadows>
-                    <Physics>
-                        {children}
-                        <Hud />
-                    </Physics>
-                    <Stats />
-                </Canvas>
-                <Cursor />
-            </KeyboardControls>
-        </SocketProvider>
+        <ReduxProvider store={store}>
+            <SocketProvider>
+                <KeyboardControls map={map}>
+                    <Canvas shadows>
+                        <Physics>
+                            {children}
+                            <Hud />
+                        </Physics>
+                        <Stats />
+                    </Canvas>
+                    <Cursor />
+                </KeyboardControls>
+            </SocketProvider>
+        </ReduxProvider>
     )
 }
 
