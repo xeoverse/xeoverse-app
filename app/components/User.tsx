@@ -43,7 +43,7 @@ const User = ({ position, rotation, userId }: UserProps) => {
             position={arraytoVector3([positionXSpring.get(), positionYSpring.get(), positionZSpring.get()]).add(new Vector3(0, 0.5, 0))}
             rotation={arrayToEuler([rotationXSpring.get(), rotationYSpring.get(), rotationZSpring.get()])}
         >
-            <Text color="yellow" fontSize={0.1} anchorX="center" anchorY={-0.25} ref={textRef}>
+            <Text color="yellow" fontSize={0.1} anchorX="center" anchorY="top" ref={textRef}>
                 {userId}
             </Text>
             <RigidBody colliders="cuboid">
