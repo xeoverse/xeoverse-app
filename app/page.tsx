@@ -1,7 +1,7 @@
 "use client"
 
 import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useThree } from '@react-three/fiber'
 import Floor from "./components/Floor"
 import { Sphere, Stars, useKeyboardControls, Box as DreiBox } from "@react-three/drei"
 import { Vector3 } from "three"
@@ -42,17 +42,11 @@ interface WorldItem {
 export default function Home() {
   const [users, setUsers] = useState<User[]>([])
   const [worldItems, setWorldItems] = useState<WorldItem[]>([])
-
-  const [myPosition, setMyPosition] = useState<number[]>([0, 0, 0])
-  const [myRotation, setMyRotation] = useState<number[]>([0, 0, 0])
   const [myUserId, setMyUserId] = useState<number | null>(null)
 
   const qPressed = useKeyboardControls<Controls>(state => state.q)
-
   const soccerBall = useRef<RapierRigidBody>(null);
-
   const { camera } = useThree()
-
   const socket = useContext(SocketContext);
 
   const handleSocketMessage = useCallback((msg: any) => {
@@ -132,15 +126,16 @@ export default function Home() {
 
       const snapToGrid = (n: number) => Math.round(n * 2) / 2
       const snappedPosition = position.map(snapToGrid)
+      const rotation = camera.rotation.toArray() as number[]
 
-      socket?.send(`${MessageType.WorldItem} ${myUserId} ${snappedPosition.join(",")} ${myRotation.join(",")} ${'box'}`)
+      socket?.send(`${MessageType.WorldItem} ${myUserId} ${snappedPosition.join(",")} ${rotation.join(",")} ${'box'}`)
       setWorldItems(prev => {
         const id = prev.length + 1
-        const worldItemUpdate = { id, position: snappedPosition, rotation: myRotation, type: WorldItemType.Box }
+        const worldItemUpdate = { id, position: snappedPosition, rotation: rotation, type: WorldItemType.Box }
         return [...prev, ...[worldItemUpdate]]
       })
     }
-  }, [camera, qPressed, myRotation, myUserId, socket, worldItems])
+  }, [camera, myUserId, qPressed, socket, worldItems])
 
   useEffect(() => {
     if (socket) {
@@ -164,13 +159,6 @@ export default function Home() {
       soccerBall.current.applyImpulse(multiplyVector3(cameraDirection, 4), true)
     }
   }, [camera])
-
-  useFrame(() => {
-    if (camera) {
-      setMyPosition(camera.position.toArray() as [number, number, number])
-      setMyRotation(camera.rotation.toArray() as [number, number, number])
-    }
-  })
 
   return (
     <>
