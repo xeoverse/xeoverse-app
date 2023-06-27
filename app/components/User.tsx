@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useSpringValue } from '@react-spring/web'
 import { RigidBody } from "@react-three/rapier";
+import { Vector3 } from "three";
 
 interface UserProps {
     position: number[]
@@ -39,7 +40,7 @@ const User = ({ position, rotation, userId }: UserProps) => {
     return (
         <group
             key={userId}
-            position={arraytoVector3([positionXSpring.get(), positionYSpring.get(), positionZSpring.get()])}
+            position={arraytoVector3([positionXSpring.get(), positionYSpring.get(), positionZSpring.get()]).add(new Vector3(0, 0.5, 0))}
             rotation={arrayToEuler([rotationXSpring.get(), rotationYSpring.get(), rotationZSpring.get()])}
         >
             <Text color="yellow" fontSize={0.1} anchorX="center" anchorY={-0.25} ref={textRef}>
