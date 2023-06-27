@@ -16,3 +16,8 @@
 - React-three-fiber based threejs.
 - Rapier WASM physics.
 - WebXR support.
+- Multiplayer positional audio mics.
+- Physics based player movement with real inertia / velocity / gravity.
+- Generated planets, solar systems, editable terrain.
+- AI NPCS.
+- Mini-games.
