@@ -75,11 +75,11 @@ export default function Home() {
       return setUsers(prev => prev.filter(u => u.userId !== userId))
     }
     if (type === MessageType.UserMove && userId !== null && data1) {
-      const position = data1.split(",").map((v: string) => parseFloat(v))
       return setUsers(prev => {
+        const position = data1.split(",").map((v: string) => parseFloat(v))
         const user = prev.find(u => u.userId === userId)
         const filteredUsers = prev.filter(u => u.userId !== userId)
-        const userUpdate = { userId, position: user?.position.map((v, i) => v + position[i]) || [0, 0, 0], rotation: user?.rotation || [0, 0, 0] }
+        const userUpdate = { userId, position, rotation: user?.rotation || [0, 0, 0] }
         return [...filteredUsers, ...[userUpdate]]
       })
     }

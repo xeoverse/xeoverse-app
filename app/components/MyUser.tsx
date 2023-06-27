@@ -31,7 +31,7 @@ const MyUser = ({ userId }: MyUserProps) => {
     const rotationXSpring = useSpringValue(0)
     const rotationYSpring = useSpringValue(0)
 
-    const [prevPosition, setPrevPosition] = useState<Vector3 | null>(null);
+    const [prevPosition, setPrevPosition] = useState<Vector3>(new Vector3());
 
     useEffect(() => {
         if (camera) {
@@ -51,7 +51,7 @@ const MyUser = ({ userId }: MyUserProps) => {
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
-            if (!controls.current.isLocked) return
+            if (!controls?.current?.isLocked) return
             const sensitivity = 0.001
 
             const prevRotationX = rotationXSpring.get()
@@ -65,7 +65,7 @@ const MyUser = ({ userId }: MyUserProps) => {
 
             const rotationDiff = [newRotationX - prevRotationX, newRotationY - prevRotationY, 0]
 
-            if (userId && socket?.OPEN && rotationDiff.some(v => v !== 0)) {
+            if (rotationDiff.some(v => v !== 0) && userId && socket?.OPEN) {
                 socket.send(`${MessageType.UserRotate} ${rotationDiff}`)
             }
         }
@@ -77,14 +77,12 @@ const MyUser = ({ userId }: MyUserProps) => {
 
     useFrame(() => {
         const position = camera?.getWorldPosition(new Vector3())
-        setPrevPosition(position as Vector3)
+        setPrevPosition(position)
 
-        const positionArray = position?.toArray()
+        const positionDiff = position.clone().sub(prevPosition).toArray().map(v => v.toFixed(32))
 
-        if (prevPosition?.toArray().map((v, i) => positionArray?.[i] - v).some(v => v !== 0)) {
-            if (userId && socket?.OPEN) {
-                socket.send(`${MessageType.UserMove} ${positionArray}`)
-            }
+        if (positionDiff.some(v => v !== Number(0.0).toFixed(32)) && userId && socket?.OPEN) {
+            socket.send(`${MessageType.UserMove} ${positionDiff}`)
         }
 
         const cameraDirection = camera.getWorldDirection(new Vector3()).clone()
@@ -177,12 +175,12 @@ const MyUser = ({ userId }: MyUserProps) => {
         <>
             <PerspectiveCamera
                 makeDefault
-                position={meshRef?.current?.getWorldPosition(new Vector3())}
+                position={meshRef?.current?.getWorldPosition(new Vector3()).add(new Vector3(0, 0.5, 0))}
                 rotation={[rotationXSpring.get(), rotationYSpring.get(), 0]}
             />
             <RigidBody ref={userRef} colliders="cuboid">
                 <Sphere castShadow args={[0.5, 10, 10]} ref={meshRef}>
-                    <meshPhysicalMaterial attach="material" color="gold" />
+                    <meshPhysicalMaterial attach="material" opacity={0} transparent />
                 </Sphere>
             </RigidBody>
             <PointerLockControls
