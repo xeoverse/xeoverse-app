@@ -189,48 +189,79 @@ export default function Home() {
       </RigidBody>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="hull">
-          <TestGLTF position={arraytoVector3([0, -1, -5])} />
+        <RigidBody colliders="hull" position={arraytoVector3([0, -1, -5])}>
+          <TestGLTF />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="hull">
-          <ChairGLTF position={arraytoVector3([7, -1, 4])} />
+        <RigidBody colliders="hull" position={arraytoVector3([7, -1, 4])}>
+          <ChairGLTF />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
-          <RobotGLTF position={arraytoVector3([7, -1, -7])} />
+        <RigidBody
+          colliders="trimesh"
+          restitution={0}
+          lockRotations
+          lockTranslations
+          position={arraytoVector3([7, -1, -7])}
+        >
+          <RobotGLTF />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
-          <OfficeGLTF position={arraytoVector3([12, -1, -15])} />
+        <RigidBody
+          colliders="trimesh"
+          restitution={0}
+          lockRotations
+          lockTranslations
+          position={arraytoVector3([12, -1, -15])}
+        >
+          <OfficeGLTF />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
-          <VillageGLTF position={arraytoVector3([-30, 10, -30])} rotation={[0, Math.PI, 0]} />
+        <RigidBody
+          colliders="trimesh"
+          restitution={0.5}
+          gravityScale={1}
+          position={arraytoVector3([-30, 14, -30])} rotation={[0, Math.PI, 0]}
+          includeInvisible={false}
+        >
+          <VillageGLTF />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0} gravityScale={0} lockRotations lockTranslations>
-          <DragonGLTF position={arraytoVector3([20, 10, -180])} />
+        <RigidBody
+          colliders="trimesh"
+          restitution={0}
+          gravityScale={0}
+          lockRotations
+          lockTranslations
+          position={arraytoVector3([20, 10, -180])}
+        >
+          <DragonGLTF />
         </RigidBody>
       </Suspense>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="trimesh" restitution={0} lockRotations lockTranslations>
-          <FieldGLTF position={arraytoVector3([-30, -0.9, 10])} />
+        <RigidBody
+          colliders="trimesh"
+          restitution={0}
+          lockRotations
+          lockTranslations
+          position={arraytoVector3([-30, -0.9, 10])}
+        >
+          <FieldGLTF />
         </RigidBody>
 
-        <RigidBody colliders={"ball"} restitution={1} ref={soccerBall}>
-          <Sphere position={[-30, 2, 0]} args={[0.4, 10, 10]} onClick={handleSoccerBallClick} castShadow receiveShadow>
+        <RigidBody colliders={"ball"} restitution={1} position={[-30, 2, 0]} ref={soccerBall}>
+          <Sphere args={[0.4, 20, 20]} onClick={handleSoccerBallClick} castShadow receiveShadow>
             <meshPhysicalMaterial attach="material" color="white" />
           </Sphere>
         </RigidBody>

@@ -32,7 +32,7 @@ const Bullet = memo(({ initialPosition, direction, userId }: BulletProps) => {
             {
                 isVisible ? (
                     <RigidBody colliders={"ball"} restitution={1.5} ref={bullet} position={initialPosition} >
-                        <Sphere args={[0.2, 6, 6]} castShadow>
+                        <Sphere args={[0.2, 10, 10]} castShadow>
                             <meshPhysicalMaterial attach="material" color="silver" />
                         </Sphere>
                     </RigidBody >
