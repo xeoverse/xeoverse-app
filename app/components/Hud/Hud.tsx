@@ -9,38 +9,17 @@ const Hud = () => {
     const tildePressed = useKeyboardControls<Controls>(state => state.tilde)
     const camera = useRef(null)
     const socket = useContext(SocketContext)
-    const mediaStream = useRef<MediaStream>()
 
     useEffect(() => {
-        const startRecording = async () => {
-            console.log('Recording audio...')
+        const audioContext = new AudioContext();
 
-            mediaStream.current = await navigator.mediaDevices.getUserMedia({ audio: true })
-            const audioContext = new AudioContext({ sampleRate: 96000 })
-            const source = audioContext.createMediaStreamSource(mediaStream.current)
-            const processor = audioContext.createScriptProcessor(4096 * 2, 1, 1)
-            source.connect(processor)
-            processor.connect(audioContext.destination)
-            processor.onaudioprocess = e => {
-                const buffer = e.inputBuffer.getChannelData(0)
-                const data = new Float32Array(buffer.length)
-                for (let i = 0; i < buffer.length; i++) {
-                    data[i] = buffer[i]
-                }
-                socket?.send(data)
-            }
-        }
-
-        startRecording()
-
-        socket?.addEventListener('message', (event) => {
+        const listener = socket?.addEventListener('message', (event) => {
             if (event.data instanceof Blob) {
                 const blob = new Blob([event.data], { type: 'audio/ogg; codecs=opus' })
                 blob.arrayBuffer().then((buffer) => {
                     const data = new Float32Array(buffer)
-                    const audioContext = new AudioContext()
                     const source = audioContext.createBufferSource()
-                    const audioBuffer = audioContext.createBuffer(1, data.length, 96000)
+                    const audioBuffer = audioContext.createBuffer(1, data.length, 48000)
                     audioBuffer.copyToChannel(data, 0)
                     source.buffer = audioBuffer
                     source.connect(audioContext.destination)
@@ -50,9 +29,34 @@ const Hud = () => {
         })
 
         return () => {
-            mediaStream.current?.getTracks().forEach(track => track.stop())
+            socket?.removeEventListener('message', listener as any)
+            audioContext.close()
         }
     }, [socket])
+
+    useEffect(() => {
+        if (tildePressed) {
+            const startRecording = async () => {
+                console.log('Recording audio...')
+
+                const audioContext = new AudioContext();
+                const microphone = await navigator.mediaDevices.getUserMedia({ audio: true })
+                const source = audioContext.createMediaStreamSource(microphone)
+
+                await audioContext.audioWorklet.addModule('recorder.worklet.js')
+
+                const recorder = new AudioWorkletNode(audioContext, 'recorder.worklet')
+
+                source.connect(recorder).connect(audioContext.destination)
+
+                recorder.port.onmessage = (event) => {
+                    console.log(event)
+                    socket?.send(event.data)
+                }
+            }
+            startRecording()
+        }
+    }, [socket, tildePressed])
 
 
     useEffect(() => {
