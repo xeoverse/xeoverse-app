@@ -35,28 +35,25 @@ const Hud = () => {
     }, [socket])
 
     useEffect(() => {
-        if (tildePressed) {
-            const startRecording = async () => {
-                console.log('Recording audio...')
+        const startRecording = async () => {
+            console.log('Recording audio...')
 
-                const audioContext = new AudioContext();
-                const microphone = await navigator.mediaDevices.getUserMedia({ audio: true })
-                const source = audioContext.createMediaStreamSource(microphone)
+            const audioContext = new AudioContext();
+            const microphone = await navigator.mediaDevices.getUserMedia({ audio: true })
+            const source = audioContext.createMediaStreamSource(microphone)
 
-                await audioContext.audioWorklet.addModule('recorder.worklet.js')
+            await audioContext.audioWorklet.addModule('recorder.worklet.js')
 
-                const recorder = new AudioWorkletNode(audioContext, 'recorder.worklet')
+            const recorder = new AudioWorkletNode(audioContext, 'recorder.worklet')
 
-                source.connect(recorder).connect(audioContext.destination)
+            source.connect(recorder).connect(audioContext.destination)
 
-                recorder.port.onmessage = (event) => {
-                    console.log(event)
-                    socket?.send(event.data)
-                }
+            recorder.port.onmessage = (event) => {
+                socket?.send(event.data)
             }
-            startRecording()
         }
-    }, [socket, tildePressed])
+        startRecording()
+    }, [socket])
 
 
     useEffect(() => {
