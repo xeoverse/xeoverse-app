@@ -13,7 +13,7 @@ const Hud = () => {
     useEffect(() => {
         const audioContext = new AudioContext();
 
-        const listener = socket?.addEventListener('message', (event) => {
+        socket?.addEventListener('message', (event) => {
             if (event.data instanceof Blob) {
                 const blob = new Blob([event.data], { type: 'audio/ogg; codecs=opus' })
                 blob.arrayBuffer().then((buffer) => {
@@ -27,11 +27,6 @@ const Hud = () => {
                 })
             }
         })
-
-        return () => {
-            socket?.removeEventListener('message', listener as any)
-            audioContext.close()
-        }
     }, [socket])
 
     useEffect(() => {
