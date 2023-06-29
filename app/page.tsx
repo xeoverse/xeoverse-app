@@ -50,7 +50,7 @@ export default function Home() {
   const socket = useContext(SocketContext);
 
   const handleSocketMessage = useCallback((msg: any) => {
-    if (!msg?.data) return;
+    if (!msg?.data || typeof msg.data !== "string") return
 
     const parsed = msg?.data?.split(" ");
     const type = Number(parsed?.[0]) ?? null;

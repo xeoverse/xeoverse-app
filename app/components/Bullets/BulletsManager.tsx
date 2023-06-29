@@ -13,7 +13,7 @@ const BulletsManager = () => {
     useEffect(() => {
         if (socket?.OPEN) {
             socket.addEventListener('message', (data) => {
-                if (!data?.data) return;
+                if (!data?.data || typeof data?.data !== "string") return;
 
                 const parsed = data?.data?.split(" ");
                 const type = Number(parsed?.[0]) ?? null;
