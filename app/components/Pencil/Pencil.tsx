@@ -39,7 +39,7 @@ const Pencil = () => {
                 const { point, face, object, faceIndex } = intersection
                 if (!object || !face || faceIndex !== 1) return
                 const vertexIndex = face.a
-                const geometry = object.geometry as THREE.BufferGeometry
+                const geometry = (object as any).geometry as THREE.BufferGeometry
                 const positionAttribute = geometry.getAttribute('position') as THREE.BufferAttribute
                 const positions = positionAttribute.array as Float32Array
                 const position = new Vector3().fromArray(positions, vertexIndex * 3)
