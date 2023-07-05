@@ -5,10 +5,12 @@ import { socket } from "../../socket/SocketContext";
 import Bullet, { BulletProps } from "./Bullet";
 import { MessageType } from "../../socket/SocketProvider";
 import { arraytoVector3 } from "../../helpers";
+import { useAppSelector } from "../../redux/hooks";
 
 const BulletsManager = () => {
     const [bullets, setBullets] = useState<BulletProps[]>([])
     const { camera } = useThree()
+    const { activeHotbar } = useAppSelector(state => state.hud)
 
     useEffect(() => {
         if (socket?.OPEN) {
@@ -37,6 +39,7 @@ const BulletsManager = () => {
     }, [])
 
     useEffect(() => {
+        if (activeHotbar !== 1) return;
         const mouseClick = (e: MouseEvent) => {
             if (e.button === 0) {
                 const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
@@ -49,7 +52,7 @@ const BulletsManager = () => {
         return () => {
             window.removeEventListener('mousedown', mouseClick)
         }
-    }, [camera])
+    }, [activeHotbar, camera])
 
     useEffect(() => {
         const timeout = setTimeout(() => {

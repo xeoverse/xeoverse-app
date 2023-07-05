@@ -5,7 +5,7 @@ import ActionBar from "./ActionBar"
 import { SocketContext } from "../../socket/SocketContext"
 
 const Hud = () => {
-    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isOpen, setIsOpen] = useState<boolean>(true)
     const tildePressed = useKeyboardControls<Controls>(state => state.tilde)
     const camera = useRef(null)
     const socket = useContext(SocketContext)
@@ -69,7 +69,7 @@ const Hud = () => {
                     </>
                 )
             }
-        </DreiHud >
+        </DreiHud>
     )
 
 }

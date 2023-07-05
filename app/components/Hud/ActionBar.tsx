@@ -1,7 +1,9 @@
-import { useKeyboardControls, Box, Sphere, Text, Circle } from "@react-three/drei"
-import { useEffect, useState } from "react"
+import { useKeyboardControls, Box, Sphere, Text, Circle, Cylinder, Cone } from "@react-three/drei"
+import { useEffect } from "react"
 import { Controls } from "../../clientLayout"
-import { Vector3 } from "@react-three/fiber"
+import { useAppDispatch, useAppSelector } from "../../redux/hooks"
+import { setActiveHotbar } from "../../redux/slices/hud"
+import { Vector3 } from "three"
 
 interface ActionBarItemProps {
     children: React.ReactNode,
@@ -34,33 +36,39 @@ const ActionBarItem = ({ children, active, position, index }: ActionBarItemProps
 }
 
 const ActionBar = () => {
-    const [activeHotbar, setActiveHotbar] = useState<number>(0)
-
     const onePressed = useKeyboardControls<Controls>(state => state.one)
     const twoPressed = useKeyboardControls<Controls>(state => state.two)
     const threePressed = useKeyboardControls<Controls>(state => state.three)
 
+    const dispatch = useAppDispatch()
+    const { activeHotbar } = useAppSelector(state => state.hud)
+
     useEffect(() => {
         if (onePressed) {
-            return setActiveHotbar(1)
+            dispatch(setActiveHotbar(1))
         } else if (twoPressed) {
-            return setActiveHotbar(2)
+            dispatch(setActiveHotbar(2))
         } else if (threePressed) {
-            return setActiveHotbar(3)
+            dispatch(setActiveHotbar(3))
         }
-    }, [onePressed, threePressed, twoPressed])
+    }, [dispatch, onePressed, threePressed, twoPressed])
 
     return (
         <group>
-            <ActionBarItem active={activeHotbar === 1} position={[-2, -2, 4]} index={1}>
+            <ActionBarItem active={activeHotbar === 1} position={new Vector3(-2, -2, 4)} index={1}>
                 <Sphere args={[0.5, 10, 10]} castShadow receiveShadow>
                     <meshPhysicalMaterial attach="material" color="silver" />
                 </Sphere>
             </ActionBarItem>
-            <ActionBarItem active={activeHotbar === 2} position={[0, -2, 4]} index={2}>
-                <Sphere args={[0.5, 10, 10]} castShadow receiveShadow>
-                    <meshPhysicalMaterial attach="material" color="silver" />
-                </Sphere>
+            <ActionBarItem active={activeHotbar === 2} position={new Vector3(0, -2, 4)} index={2}>
+                <group>
+                    <Cylinder args={[0.1, 0.1, 0.5, 10]} position={[0, -0.2, 0]} castShadow receiveShadow>
+                        <meshPhysicalMaterial attach="material" color="silver" />
+                    </Cylinder>
+                    <Cone args={[0.12, 0.2, 10]} position={[0, 0.16, 0]} castShadow receiveShadow>
+                        <meshPhysicalMaterial attach="material" color="red" />
+                    </Cone>
+                </group>
             </ActionBarItem>
         </group>
     )
