@@ -36,7 +36,6 @@ const Pencil = () => {
             planeRef.current?.rotateX(Math.PI / 2)
 
             raycaster.intersectObject(planeRef.current as Mesh).forEach((intersection) => {
-                console.log(intersection)
                 const { point, face, object, faceIndex } = intersection
                 if (!object || !face || faceIndex !== 1) return
                 const vertexIndex = face.a
