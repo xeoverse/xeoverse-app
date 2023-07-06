@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
-import { Color, DoubleSide, Mesh, MeshStandardMaterial, SphereGeometry, Vector3 } from 'three'
-import { Plane } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
+
+const instanceCount = 1000
 
 const Pencil = () => {
-    const planeRef = useRef<Mesh>(null)
     const [isDrawing, setIsDrawing] = useState(false)
+    const [instanceIndex, setInstanceIndex] = useState(0)
+
+    const instancedMeshRef = useRef<InstancedMesh>(null)
 
     useEffect(() => {
         const mouseDown = (e: MouseEvent) => {
@@ -26,39 +29,24 @@ const Pencil = () => {
         }
     }, [])
 
-    const { camera, scene } = useThree()
-
-    useFrame(({ raycaster }) => {
-        if (isDrawing) {
-            const frontOfMe = camera.position.clone().add(raycaster.ray.direction.clone().multiplyScalar(2))
-            planeRef.current?.position.copy(frontOfMe)
-            planeRef.current?.lookAt(camera.position)
-            planeRef.current?.rotateX(Math.PI / 2)
-
-            raycaster.intersectObject(planeRef.current as Mesh).forEach((intersection) => {
-                const { point, face, object, faceIndex } = intersection
-                if (!object || !face || faceIndex !== 1) return
-                const vertexIndex = face.a
-                const geometry = (object as any).geometry as THREE.BufferGeometry
-                const positionAttribute = geometry.getAttribute('position') as THREE.BufferAttribute
-                const positions = positionAttribute.array as Float32Array
-                const position = new Vector3().fromArray(positions, vertexIndex * 3)
-                position.applyMatrix4(object.matrixWorld)
-                const normal = face.normal.clone().applyMatrix4(object.matrixWorld)
-                const color = new Color(0xff0000)
-                const material = new MeshStandardMaterial({ color })
-                const mesh = new Mesh(new SphereGeometry(0.05), material)
-                mesh.position.copy(position)
-                mesh.lookAt(position.clone().add(normal))
-                scene.add(mesh)
-            })
+    useFrame(({ camera }) => {
+        if (isDrawing && instancedMeshRef.current) {
+            if (instanceIndex >= instanceCount) return setInstanceIndex(0)
+            const fromOfMe = camera.position.clone().add(camera.getWorldDirection(new Vector3()).multiplyScalar(2))
+            const matrix = new Matrix4().compose(fromOfMe, new Quaternion(), new Vector3(1, 1, 1))
+            instancedMeshRef.current.setMatrixAt(instanceIndex, matrix)
+            instancedMeshRef.current.instanceMatrix.needsUpdate = true
+            setInstanceIndex(instanceIndex + 1)
         }
     })
 
     return (
-        <Plane args={[0.01, 1]} ref={planeRef}>
-            <meshBasicMaterial side={DoubleSide} transparent opacity={0} />
-        </Plane>
+        <group>
+            <instancedMesh ref={instancedMeshRef} args={[undefined, undefined, instanceCount]} frustumCulled={false}>
+                <sphereGeometry args={[0.05, 2]} />
+                <meshStandardMaterial color={0xff0000} />
+            </instancedMesh>
+        </group>
     )
 }
 
