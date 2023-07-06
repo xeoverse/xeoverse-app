@@ -43,7 +43,7 @@ const Pencil = () => {
     return (
         <group>
             <instancedMesh ref={instancedMeshRef} args={[undefined, undefined, instanceCount]} frustumCulled={false}>
-                <sphereGeometry args={[0.05, 2]} />
+                <sphereGeometry args={[0.05, 6]} />
                 <meshStandardMaterial color={0xff0000} />
             </instancedMesh>
         </group>
