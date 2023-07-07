@@ -1,22 +1,40 @@
-import { useEffect, useState } from "react";
-import { Vector3 } from "three";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { InstancedMesh, Vector3 } from "three";
 import { useThree } from "@react-three/fiber";
 import { socket } from "../../socket/SocketContext";
-import Bullet, { BulletProps } from "./Bullet";
 import { MessageType } from "../../socket/SocketProvider";
 import { arraytoVector3 } from "../../helpers";
 import { useAppSelector } from "../../redux/hooks";
+import { InstancedRigidBodies, InstancedRigidBodyProps, RapierRigidBody } from "@react-three/rapier";
+
+const instanceCount = 1000
 
 const BulletsManager = () => {
-    const [bullets, setBullets] = useState<BulletProps[]>([])
+    const [instanceIndex, setInstanceIndex] = useState(0);
+    const [instances, setInstances] = useState<InstancedRigidBodyProps[]>([]);
+
     const { camera } = useThree()
     const { activeHotbar } = useAppSelector(state => state.hud)
+
+    const rigidBodies = useRef<RapierRigidBody[]>(null);
+    const instancedMeshRef = useRef<InstancedMesh>(null);
+
+    const addInstance = useCallback((position: Vector3, linearVelocity: Vector3) => {
+        if (instanceIndex >= instanceCount) return setInstanceIndex(0)
+        const newInstances = [...instances]
+        newInstances[instanceIndex] = {
+            key: "instance_" + Math.random(),
+            position,
+            linearVelocity: linearVelocity.toArray(),
+        }
+        setInstances(newInstances)
+        setInstanceIndex(prev => prev + 1)
+    }, [instanceIndex, instances])
 
     useEffect(() => {
         if (socket?.OPEN) {
             socket.addEventListener('message', (data) => {
                 if (!data?.data || typeof data?.data !== "string") return;
-
                 const parsed = data?.data?.split(" ");
                 const type = Number(parsed?.[0]) ?? null;
                 const userId = Number(parsed?.[1]) ?? null;
@@ -28,15 +46,11 @@ const BulletsManager = () => {
                     const data2 = parsed?.[3];
                     const initialPosition = data1.split(",").map((v: string) => parseFloat(v))
                     const cameraDirection = data2.split(",").map((v: string) => parseFloat(v))
-                    return setBullets(prev => [...prev, ...[{
-                        initialPosition: arraytoVector3(initialPosition),
-                        direction: arraytoVector3(cameraDirection),
-                        userId: Number(userId)
-                    }]])
+                    addInstance(arraytoVector3(initialPosition), arraytoVector3(cameraDirection).multiplyScalar(20))
                 }
             })
         }
-    }, [])
+    }, [addInstance])
 
     useEffect(() => {
         if (activeHotbar !== 1) return;
@@ -44,7 +58,7 @@ const BulletsManager = () => {
             if (e.button === 0) {
                 const cameraDirection = camera.getWorldDirection(new Vector3()).toArray();
                 const frontOfMe = camera.position.clone().add(arraytoVector3(cameraDirection).multiplyScalar(2))
-                setBullets(prev => [...prev, ...[{ initialPosition: frontOfMe, direction: arraytoVector3(cameraDirection), userId: 0 }]])
+                addInstance(frontOfMe, arraytoVector3(cameraDirection).multiplyScalar(20))
                 socket.send(`${MessageType.UserShoot} ${frontOfMe.toArray()} ${cameraDirection}`)
             }
         }
@@ -52,27 +66,19 @@ const BulletsManager = () => {
         return () => {
             window.removeEventListener('mousedown', mouseClick)
         }
-    }, [activeHotbar, camera])
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            setBullets([])
-        }, 1000 * 20)
-        return () => {
-            clearTimeout(timeout)
-        }
-    }, [bullets])
+    }, [activeHotbar, addInstance, camera, instanceIndex])
 
     return (
-        <>
-            {
-                bullets.map(({ initialPosition, direction, userId }, i) => {
-                    return (
-                        <Bullet key={i} initialPosition={initialPosition} direction={direction} userId={userId} />
-                    )
-                })
-            }
-        </>
+        <InstancedRigidBodies
+            ref={rigidBodies}
+            instances={instances}
+            colliders="ball"
+        >
+            <instancedMesh ref={instancedMeshRef} args={[undefined, undefined, instanceCount]} frustumCulled={false}>
+                <sphereGeometry args={[0.2, 10, 10]} />
+                <meshPhysicalMaterial attach="material" color="silver" />
+            </instancedMesh>
+        </InstancedRigidBodies>
     )
 }
 

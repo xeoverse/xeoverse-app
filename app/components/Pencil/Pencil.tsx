@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
 
-const instanceCount = 1000
+const instanceCount = 2000
 
 const Pencil = () => {
     const [isDrawing, setIsDrawing] = useState(false)
