@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three'
+import { useAppSelector } from '../../redux/hooks'
 
 const instanceCount = 2000
 
@@ -9,10 +10,11 @@ const Pencil = () => {
     const [instanceIndex, setInstanceIndex] = useState(0)
 
     const instancedMeshRef = useRef<InstancedMesh>(null)
+    const { activeHotbar } = useAppSelector(state => state.hud)
 
     useEffect(() => {
         const mouseDown = (e: MouseEvent) => {
-            if (e.button === 0) {
+            if (e.button === 0 && activeHotbar === 2) {
                 setIsDrawing(true)
             }
         }
@@ -27,10 +29,10 @@ const Pencil = () => {
             window.removeEventListener('mousedown', mouseDown)
             window.removeEventListener('mouseup', mouseUp)
         }
-    }, [])
+    }, [activeHotbar])
 
     useFrame(({ camera }) => {
-        if (isDrawing && instancedMeshRef.current) {
+        if (isDrawing && instancedMeshRef.current && activeHotbar === 2) {
             if (instanceIndex >= instanceCount) return setInstanceIndex(0)
             const fromOfMe = camera.position.clone().add(camera.getWorldDirection(new Vector3()).multiplyScalar(2))
             const matrix = new Matrix4().compose(fromOfMe, new Quaternion(), new Vector3(1, 1, 1))

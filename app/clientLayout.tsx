@@ -4,7 +4,7 @@ import { KeyboardControls, KeyboardControlsEntry, Stats } from "@react-three/dre
 import { Canvas } from "@react-three/fiber"
 import { Physics } from "@react-three/rapier"
 import { useMemo } from "react"
-import Hud from "./components/Hud/Hud"
+import Hud from "./components/hud/Hud"
 import { Provider as ReduxProvider } from "react-redux"
 import { store } from "./redux/store"
 import SocketProvider from "./socket/SocketProvider"

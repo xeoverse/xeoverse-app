@@ -18,10 +18,9 @@ import { Model as VillageGLTF } from './components/gltf/Village'
 import { Model as DragonGLTF } from './components/gltf/Dragon'
 import { SocketContext } from './socket/SocketContext'
 import { MessageType, UserStates } from './socket/SocketProvider'
-import BulletsManager from './components/Bullets/BulletsManager'
+import BulletsManager from './components/bullets/BulletsManager'
 import MyUser from './components/MyUser'
-import { useAppSelector } from './redux/hooks'
-import Pencil from './components/Pencil/Pencil'
+import Pencil from './components/pencil/Pencil'
 
 interface User {
   userId: number,
@@ -50,8 +49,6 @@ export default function Home() {
   const soccerBall = useRef<RapierRigidBody>(null);
   const { camera } = useThree()
   const socket = useContext(SocketContext);
-
-  const { activeHotbar } = useAppSelector(state => state.hud)
 
   const handleSocketMessage = useCallback((msg: any) => {
     if (!msg?.data || typeof msg.data !== "string") return
@@ -301,7 +298,7 @@ export default function Home() {
 
       <BulletsManager />
 
-      {activeHotbar === 2 && <Pencil />}
+      <Pencil />
 
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       <Floor />
