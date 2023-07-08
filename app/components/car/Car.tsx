@@ -43,6 +43,7 @@ const WheelJoint = ({
     const backPressed = useKeyboardControls<Controls>(state => state.back)
     const leftPressed = useKeyboardControls<Controls>(state => state.left)
     const rightPressed = useKeyboardControls<Controls>(state => state.right)
+    const shiftPressed = useKeyboardControls<Controls>(state => state.shift)
 
     const joint = useRevoluteJoint(body, wheel, [
         bodyAnchor,
@@ -58,7 +59,11 @@ const WheelJoint = ({
                 } else if (rightPressed && wheelSide === WheelSide.FrontLeft || leftPressed && wheelSide === WheelSide.BackRight) {
                     joint.current.configureMotorVelocity(100, 10);
                 } else if (!leftPressed && !rightPressed) {
-                    joint.current.configureMotorVelocity(20, 10);
+                    if (shiftPressed) {
+                        joint.current.configureMotorVelocity(200, 10);
+                    } else {
+                        joint.current.configureMotorVelocity(20, 10);
+                    }
                 } else {
                     joint.current.configureMotorVelocity(0, 0);
                 }
