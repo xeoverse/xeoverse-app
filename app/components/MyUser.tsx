@@ -7,6 +7,7 @@ import { Mesh, Vector3 } from "three";
 import { useSpringValue } from "@react-spring/web";
 import { SocketContext } from "../socket/SocketContext";
 import { MessageType } from "../socket/SocketProvider";
+import { useAppSelector } from "../redux/hooks";
 
 interface MyUserProps {
     userId?: number | null;
@@ -32,6 +33,8 @@ const MyUser = ({ userId }: MyUserProps) => {
     const rotationYSpring = useSpringValue(0)
 
     const [prevPosition, setPrevPosition] = useState<Vector3>(new Vector3());
+
+    const { isDriving } = useAppSelector(state => state.app)
 
     useEffect(() => {
         if (camera) {
@@ -76,6 +79,12 @@ const MyUser = ({ userId }: MyUserProps) => {
     }, [userId, rotationXSpring, rotationYSpring, socket])
 
     useFrame(() => {
+        if (meshRef?.current && !isDriving) {
+            camera.position.copy(meshRef?.current?.getWorldPosition(new Vector3()).add(new Vector3(0, 0.5, 0)))
+        }
+
+        camera.rotation.setFromVector3(new Vector3(rotationXSpring.get(), rotationYSpring.get(), 0))
+
         const position = camera?.getWorldPosition(new Vector3())
         setPrevPosition(position)
 
@@ -173,11 +182,7 @@ const MyUser = ({ userId }: MyUserProps) => {
 
     return (
         <>
-            <PerspectiveCamera
-                makeDefault
-                position={meshRef?.current?.getWorldPosition(new Vector3()).add(new Vector3(0, 0.5, 0))}
-                rotation={[rotationXSpring.get(), rotationYSpring.get(), 0]}
-            />
+            <PerspectiveCamera makeDefault />
             <RigidBody ref={userRef} colliders="cuboid">
                 <Sphere castShadow args={[0.5, 10, 10]} ref={meshRef}>
                     <meshPhysicalMaterial attach="material" opacity={0} transparent />

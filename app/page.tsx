@@ -21,6 +21,7 @@ import { MessageType, UserStates } from './socket/SocketProvider'
 import BulletsManager from './components/bullets/BulletsManager'
 import MyUser from './components/MyUser'
 import Pencil from './components/pencil/Pencil'
+import Car from './components/car/Car'
 
 interface User {
   userId: number,
@@ -190,7 +191,7 @@ export default function Home() {
       </RigidBody>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="hull" position={arraytoVector3([0, -1, -5])}>
+        <RigidBody colliders="hull" position={arraytoVector3([0, -1, -6])}>
           <TestGLTF />
         </RigidBody>
       </Suspense>
@@ -299,6 +300,8 @@ export default function Home() {
       <BulletsManager />
 
       <Pencil />
+
+      <Car initialPosition={new Vector3(0, 0, 15)}/>
 
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       <Floor />
