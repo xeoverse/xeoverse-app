@@ -21,6 +21,8 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
+    "@hello-worlds/planets": "^0.0.19",
+    "@hello-worlds/react": "^0.0.20",
     "@prisma/client": "^4.16.2",
     "@react-spring/web": "^9.7.3",
     "@react-three/drei": "^9.78.1",
