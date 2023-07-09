@@ -20,7 +20,7 @@ export const appSlice = createSlice({
     },
     setIsDriving: (state, action: PayloadAction<boolean>) => {
       state.isDriving = action.payload;
-    }
+    },
   },
 });
 

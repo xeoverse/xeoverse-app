@@ -1,38 +1,38 @@
 class RecorderProcessor extends AudioWorkletProcessor {
   // 0. Determine the buffer size (this is the same as the 1st argument of ScriptProcessor)
-  bufferSize = 4096 * 3
+  bufferSize = 4096 * 3;
   // 1. Track the current buffer fill level
-  _bytesWritten = 0
+  _bytesWritten = 0;
 
   // 2. Create a buffer of fixed size
-  _buffer = new Float32Array(this.bufferSize)
+  _buffer = new Float32Array(this.bufferSize);
 
-    constructor() {
-      super()
-      this.initBuffer()
+  constructor() {
+    super();
+    this.initBuffer();
   }
 
   initBuffer() {
-    this._bytesWritten = 0
+    this._bytesWritten = 0;
   }
 
   isBufferEmpty() {
-    return this._bytesWritten === 0
+    return this._bytesWritten === 0;
   }
 
   isBufferFull() {
-    return this._bytesWritten === this.bufferSize
+    return this._bytesWritten === this.bufferSize;
   }
 
-    /**
+  /**
    * @param {Float32Array[][]} inputs
    * @returns {boolean}
    */
   process(inputs) {
     // Grabbing the 1st channel similar to ScriptProcessorNode
-    this.append(inputs[0][0])
+    this.append(inputs[0][0]);
 
-    return true
+    return true;
   }
 
   /**
@@ -41,13 +41,13 @@ class RecorderProcessor extends AudioWorkletProcessor {
    */
   append(channelData) {
     if (this.isBufferFull()) {
-      this.flush()
+      this.flush();
     }
 
-    if (!channelData) return
+    if (!channelData) return;
 
     for (let i = 0; i < channelData.length; i++) {
-      this._buffer[this._bytesWritten++] = channelData[i]
+      this._buffer[this._bytesWritten++] = channelData[i];
     }
   }
 
@@ -56,11 +56,10 @@ class RecorderProcessor extends AudioWorkletProcessor {
     this.port.postMessage(
       this._bytesWritten < this.bufferSize
         ? this._buffer.slice(0, this._bytesWritten)
-        : this._buffer
-    )
-    this.initBuffer()
+        : this._buffer,
+    );
+    this.initBuffer();
   }
-
 }
 
-registerProcessor("recorder.worklet", RecorderProcessor)
+registerProcessor("recorder.worklet", RecorderProcessor);

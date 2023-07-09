@@ -87,7 +87,8 @@ body {
   outline: none;
 }
 
-body > div, canvas {
+body > div,
+canvas {
   outline: none;
 }
 
