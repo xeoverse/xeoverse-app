@@ -40,12 +40,12 @@ const Planet = () => {
     return (
         <HelloPlanet
             key="planet"
-            position={new Vector3()}
-            radius={50}
+            position={new Vector3(300, 200, 0)}
+            radius={10}
             minCellSize={32 * 8}
             minCellResolution={32}
             lodOrigin={camera.position}
-            lodDistanceComparisonValue={3}
+            lodDistanceComparisonValue={1}
             worker={worker}
             data={{
                 seed: "Flat Worlds Example",

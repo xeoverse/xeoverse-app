@@ -19,16 +19,16 @@ const heightGenerator: ChunkGenerator3Initializer<ThreadParams, number> = ({
         ...DEFAULT_NOISE_PARAMS,
         octaves: 2,
         seed,
-        height: 1000,
-        scale: 3000,
+        height: 500,
+        scale: 500,
         noiseType: NOISE_TYPES.BILLOWING,
     })
 
     const mountains = new Noise({
         ...DEFAULT_NOISE_PARAMS,
         seed,
-        height: 2000,
-        scale: 3000,
+        height: 500,
+        scale: 500,
     })
 
     return ({ input }) => {
