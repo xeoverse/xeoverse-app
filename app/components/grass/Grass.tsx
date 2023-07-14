@@ -2,25 +2,26 @@
 import * as THREE from "three";
 import React, { useRef, useMemo } from "react";
 import SimplexNoise from "simplex-noise";
-import { useFrame, useLoader } from "@react-three/fiber";
-import { Geometry } from "three/examples/jsm/deprecated/Geometry";
+import { useFrame } from "@react-three/fiber";
 //These have been taken from "Realistic real-time grass rendering" by Eddie Lee, 2010
-// import bladeDiffuse from "./assets/blade_diffuse.jpg";
-// import bladeAlpha from "./assets/blade_alpha.jpg";
 import "./GrassMaterial";
 import { useTexture } from "@react-three/drei";
+import { RigidBody } from "@react-three/rapier";
 
 const simplex = new SimplexNoise(Math.random);
 
 export default function Grass({
   options = { bW: 0.12, bH: 1, joints: 5 },
-  width = 100,
+  width = 200,
   instances = 50000,
   ...props
 }) {
   const { bW, bH, joints } = options;
-  const materialRef = useRef<THREE.Material>(null);
-  const [texture, alphaMap] = useTexture(["/assets/blade_diffuse.jpg", "/assets/blade_alpha.jpg"]);
+  const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const [texture, alphaMap] = useTexture([
+    "/assets/blade_diffuse.jpg",
+    "/assets/blade_alpha.jpg",
+  ]);
 
   const attributeData = useMemo(
     () => getAttributeData(instances, width),
@@ -35,10 +36,12 @@ export default function Grass({
   const groundGeo = useMemo(() => {
     const geo = new THREE.PlaneGeometry(width, width, 32, 32);
     geo.lookAt(new THREE.Vector3(0, 1, 0));
-    // for (let i = 0; i < geo.vertices.length; i++) {
-    //   const v = geo.vertices[i];
-    //   v.y = getYPosition(v.x, v.z);
-    // }
+    const positionVectices = geo.attributes.position.array as number[];
+    for (let i = 0; i < positionVectices.length; i += 3) {
+      const x = positionVectices[i];
+      const z = positionVectices[i + 2];
+      positionVectices[i + 1] = getYPosition(x, z);
+    }
     geo.computeVertexNormals();
     return geo;
   }, [width]);
@@ -51,7 +54,7 @@ export default function Grass({
 
   return (
     <group {...props}>
-      <mesh>
+      <mesh frustumCulled={false}>
         <instancedBufferGeometry
           index={baseGeom.index}
           attributes-position={baseGeom.attributes.position}
@@ -85,14 +88,16 @@ export default function Grass({
           toneMapped={false}
         />
       </mesh>
-      <mesh position={[0, 0, 0]} geometry={groundGeo}>
-        <meshStandardMaterial color="#000f00" />
-      </mesh>
+      <RigidBody colliders="trimesh" lockRotations lockTranslations>
+        <mesh position={[0, 0, 0]} geometry={groundGeo}>
+          <meshPhysicalMaterial color="#013301" />
+        </mesh>
+      </RigidBody>
     </group>
   );
 }
 
-function getAttributeData(instances, width) {
+function getAttributeData(instances: number, width: number) {
   const offsets = [];
   const orientations = [];
   const stretches = [];
@@ -175,7 +180,7 @@ function getAttributeData(instances, width) {
   };
 }
 
-function multiplyQuaternions(q1, q2) {
+function multiplyQuaternions(q1: THREE.Vector4, q2: THREE.Vector4) {
   const x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
   const y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
   const z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
@@ -183,7 +188,7 @@ function multiplyQuaternions(q1, q2) {
   return new THREE.Vector4(x, y, z, w);
 }
 
-function getYPosition(x, z) {
+function getYPosition(x: number, z: number) {
   var y = 2 * simplex.noise2D(x / 50, z / 50);
   y += 4 * simplex.noise2D(x / 100, z / 100);
   y += 0.2 * simplex.noise2D(x / 10, z / 10);

@@ -117,7 +117,9 @@ const GrassMaterial = shaderMaterial(
 	      #include <encodings_fragment>
       }`,
   (self) => {
-    self.side = THREE.DoubleSide;
+    if (self) {
+      self.side = THREE.DoubleSide;
+    }
   },
 );
 

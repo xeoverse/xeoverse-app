@@ -347,7 +347,7 @@ export default function Home() {
       </Suspense>
 
       <Suspense fallback={null}>
-        <Grass />
+        <Grass position={[0, -2, 130]} rotation={[0, Math.PI / 2, 0]} />
       </Suspense>
 
       {worldItems.map((item, i) => {
