@@ -14,3 +14,11 @@ export interface SocketWithIO extends NetSocket {
 export interface NextResponseWithSocket extends NextApiResponse {
   socket: SocketWithIO;
 }
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      grassMaterial: any;
+    }
+  }
+}
