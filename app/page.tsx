@@ -35,6 +35,7 @@ import MyUser from "./components/MyUser";
 import Pencil from "./components/pencil/Pencil";
 import Car from "./components/car/Car";
 import Planet from './components/planet/Planet'
+import Grass from "./components/grass/Grass";
 
 interface User {
   userId: number;
@@ -343,6 +344,10 @@ export default function Home() {
             <meshPhysicalMaterial attach="material" color="white" />
           </Sphere>
         </RigidBody>
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <Grass />
       </Suspense>
 
       {worldItems.map((item, i) => {
