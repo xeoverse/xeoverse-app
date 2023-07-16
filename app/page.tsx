@@ -28,6 +28,7 @@ import { Model as OfficeGLTF } from "./components/gltf/Office";
 import { Model as FieldGLTF } from "./components/gltf/Field";
 import { Model as VillageGLTF } from "./components/gltf/Village";
 import { Model as DragonGLTF } from "./components/gltf/Dragon";
+import { Model as FlowyTreeGLTF } from "./components/gltf/FlowyTree";
 import { SocketContext } from "./socket/SocketContext";
 import { MessageType, UserStates } from "./socket/SocketProvider";
 import BulletsManager from "./components/bullets/BulletsManager";
@@ -302,6 +303,21 @@ export default function Home() {
           includeInvisible={false}
         >
           <VillageGLTF />
+        </RigidBody>
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RigidBody
+          colliders="trimesh"
+          restitution={0.5}
+          gravityScale={1}
+          position={arraytoVector3([-10, -1, -30])}
+          rotation={[0, Math.PI, 0]}
+          includeInvisible={false}
+          lockTranslations
+          lockRotations
+        >
+          <FlowyTreeGLTF />
         </RigidBody>
       </Suspense>
 
