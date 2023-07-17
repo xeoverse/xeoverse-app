@@ -36,7 +36,7 @@ export default function Grass({
   const groundGeo = useMemo(() => {
     const geo = new THREE.PlaneGeometry(width, width, 32, 32);
     geo.lookAt(new THREE.Vector3(0, 1, 0));
-    const positionVectices = geo.attributes.position.array as number[];
+    const positionVectices = geo.attributes.position.array;
     for (let i = 0; i < positionVectices.length; i += 3) {
       const x = positionVectices[i];
       const z = positionVectices[i + 2];
