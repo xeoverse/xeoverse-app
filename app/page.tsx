@@ -412,7 +412,7 @@ export default function Home() {
 
       <MyUser userId={myUserId} />
 
-      <Planet />
+      {/* <Planet /> */}
 
       {users
         .filter((user) => user.userId !== myUserId)
