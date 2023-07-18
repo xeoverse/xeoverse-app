@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "gltf": "npx gltfjsx ./public/gltf/flowy-tree.glb --shadows --output ./app/components/gltf/FlowyTree.tsx --types --root ./public/ --debug",
+    "gltf": "npx gltfjsx ./public/gltf/island.glb --shadows --output ./app/components/gltf/Island.tsx --types --root ./public/ --debug",
     "postinstall": "prisma generate"
   },
   "devDependencies": {

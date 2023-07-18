@@ -29,13 +29,14 @@ import { Model as FieldGLTF } from "./components/gltf/Field";
 import { Model as VillageGLTF } from "./components/gltf/Village";
 import { Model as DragonGLTF } from "./components/gltf/Dragon";
 import { Model as FlowyTreeGLTF } from "./components/gltf/FlowyTree";
+import { Model as IslandGLTF } from "./components/gltf/Island";
 import { SocketContext } from "./socket/SocketContext";
 import { MessageType, UserStates } from "./socket/SocketProvider";
 import BulletsManager from "./components/bullets/BulletsManager";
 import MyUser from "./components/MyUser";
 import Pencil from "./components/pencil/Pencil";
 import Car from "./components/car/Car";
-import Planet from './components/planet/Planet'
+import Planet from "./components/planet/Planet";
 import Grass from "./components/grass/Grass";
 
 interface User {
@@ -338,6 +339,19 @@ export default function Home() {
         <RigidBody
           colliders="trimesh"
           restitution={0}
+          gravityScale={0}
+          lockRotations
+          lockTranslations
+          position={arraytoVector3([-10, 10, -80])}
+        >
+          <IslandGLTF />
+        </RigidBody>
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RigidBody
+          colliders="trimesh"
+          restitution={0}
           lockRotations
           lockTranslations
           position={arraytoVector3([-30, -0.9, 10])}
@@ -394,7 +408,7 @@ export default function Home() {
       <MyUser userId={myUserId} />
 
       <Planet />
-    
+
       {users
         .filter((user) => user.userId !== myUserId)
         .map((u) => {
