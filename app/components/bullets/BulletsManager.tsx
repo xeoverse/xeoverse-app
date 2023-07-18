@@ -12,6 +12,7 @@ import {
 } from "@react-three/rapier";
 
 const instanceCount = 1000;
+const positionOffset = -100;
 
 const BulletsManager = () => {
   const [instanceIndex, setInstanceIndex] = useState(0);
@@ -29,7 +30,7 @@ const BulletsManager = () => {
       const newInstances = [...instances];
       newInstances[instanceIndex] = {
         key: "instance_" + Math.random(),
-        position,
+        position: [position.x, position.y - positionOffset, position.z],
         linearVelocity: linearVelocity.toArray(),
       };
       setInstances(newInstances);
@@ -97,6 +98,7 @@ const BulletsManager = () => {
       ref={rigidBodies}
       instances={instances}
       colliders="ball"
+      position={[0, positionOffset, 0]}
     >
       <instancedMesh
         ref={instancedMeshRef}

@@ -4,6 +4,7 @@ import { InstancedMesh, Matrix4, Quaternion, Vector3 } from "three";
 import { useAppSelector } from "../../redux/hooks";
 
 const instanceCount = 2000;
+const positionOffset = -100;
 
 const Pencil = () => {
   const [isDrawing, setIsDrawing] = useState(false);
@@ -34,11 +35,12 @@ const Pencil = () => {
   useFrame(({ camera }) => {
     if (isDrawing && instancedMeshRef.current && activeHotbar === 2) {
       if (instanceIndex >= instanceCount) return setInstanceIndex(0);
-      const fromOfMe = camera.position
+      const frontofMe = camera.position
         .clone()
         .add(camera.getWorldDirection(new Vector3()).multiplyScalar(2));
+      frontofMe.y -= positionOffset;
       const matrix = new Matrix4().compose(
-        fromOfMe,
+        frontofMe,
         new Quaternion(),
         new Vector3(1, 1, 1),
       );
@@ -54,6 +56,7 @@ const Pencil = () => {
         ref={instancedMeshRef}
         args={[undefined, undefined, instanceCount]}
         frustumCulled={false}
+        position={[0, positionOffset, 0]}
       >
         <sphereGeometry args={[0.05, 6]} />
         <meshStandardMaterial color={0xff0000} />

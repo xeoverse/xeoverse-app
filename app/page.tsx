@@ -259,7 +259,12 @@ export default function Home() {
       </RigidBody>
 
       <Suspense fallback={null}>
-        <RigidBody colliders="hull" position={arraytoVector3([0, -1, -6])}>
+        <RigidBody
+          colliders="hull"
+          position={arraytoVector3([0, -1, -6])}
+          lockRotations
+          lockTranslations
+        >
           <TestGLTF />
         </RigidBody>
       </Suspense>
