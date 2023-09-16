@@ -1,14 +1,14 @@
 // Based on https://codepen.io/al-ro/pen/jJJygQ by al-ro, but rewritten in react-three-fiber
 import * as THREE from "three";
 import React, { useRef, useMemo } from "react";
-import SimplexNoise from "simplex-noise";
+import { createNoise2D } from "simplex-noise";
 import { useFrame } from "@react-three/fiber";
 //These have been taken from "Realistic real-time grass rendering" by Eddie Lee, 2010
 import "./GrassMaterial";
 import { useTexture } from "@react-three/drei";
 import { RigidBody } from "@react-three/rapier";
 
-const simplex = new SimplexNoise(Math.random);
+const noise2d = createNoise2D(Math.random);
 
 export default function Grass({
   options = { bW: 0.12, bH: 1, joints: 5 },
@@ -189,8 +189,8 @@ function multiplyQuaternions(q1: THREE.Vector4, q2: THREE.Vector4) {
 }
 
 function getYPosition(x: number, z: number) {
-  var y = 2 * simplex.noise2D(x / 50, z / 50);
-  y += 4 * simplex.noise2D(x / 100, z / 100);
-  y += 0.2 * simplex.noise2D(x / 10, z / 10);
+  var y = 2 * noise2d(x / 50, z / 50);
+  y += 4 * noise2d(x / 100, z / 100);
+  y += 0.2 * noise2d(x / 10, z / 10);
   return y;
 }

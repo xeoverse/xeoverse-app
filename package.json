@@ -11,32 +11,31 @@
     "postinstall": "prisma generate"
   },
   "devDependencies": {
-    "@types/node": "20.4.2",
-    "@types/react": "18.2.15",
+    "@types/node": "20.6.1",
+    "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
-    "@types/three": "^0.154.0",
-    "eslint": "8.45.0",
-    "eslint-config-next": "13.4.10",
-    "prettier": "3.0.0",
-    "prisma": "^5.0.0",
-    "typescript": "5.1.6"
+    "@types/three": "^0.156.0",
+    "eslint": "8.49.0",
+    "eslint-config-next": "13.4.19",
+    "prettier": "3.0.3",
+    "prisma": "^5.3.1",
+    "typescript": "5.2.2"
   },
   "dependencies": {
-    "@hello-worlds/planets": "^0.0.19",
-    "@hello-worlds/react": "^0.0.21",
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "^5.3.1",
     "@react-spring/web": "^9.7.3",
-    "@react-three/drei": "^9.79.0",
-    "@react-three/fiber": "^8.13.5",
+    "@react-three/drei": "^9.83.9",
+    "@react-three/fiber": "^8.14.1",
     "@react-three/rapier": "^1.1.1",
     "@reduxjs/toolkit": "^1.9.5",
-    "@vercel/analytics": "^1.0.1",
-    "framer-motion": "^10.12.22",
-    "next": "13.4.10",
+    "@vercel/analytics": "^1.0.2",
+    "framer-motion": "^10.16.4",
+    "next": "13.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-redux": "^8.1.1",
-    "swr": "^2.2.0",
-    "three": "^0.154.0"
+    "react-redux": "^8.1.2",
+    "simplex-noise": "^4.0.1",
+    "swr": "^2.2.2",
+    "three": "^0.156.1"
   }
 }

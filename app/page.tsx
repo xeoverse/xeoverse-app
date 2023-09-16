@@ -36,7 +36,6 @@ import BulletsManager from "./components/bullets/BulletsManager";
 import MyUser from "./components/MyUser";
 import Pencil from "./components/pencil/Pencil";
 import Car from "./components/car/Car";
-import Planet from "./components/planet/Planet";
 import Grass from "./components/grass/Grass";
 
 interface User {
@@ -411,8 +410,6 @@ export default function Home() {
       })}
 
       <MyUser userId={myUserId} />
-
-      {/* <Planet /> */}
 
       {users
         .filter((user) => user.userId !== myUserId)
