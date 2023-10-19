@@ -226,9 +226,9 @@ export default function Home() {
 
   return (
     <>
-      <ambientLight intensity={0.25} />
+      <ambientLight intensity={0.9} />
       <directionalLight
-        intensity={0.7}
+        intensity={1}
         castShadow
         shadow-mapSize-height={1024 * 4}
         shadow-mapSize-width={1024 * 4}
