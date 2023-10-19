@@ -66,8 +66,13 @@ const Hud = () => {
     <DreiHud>
       {isOpen && (
         <>
-          <ambientLight intensity={0.5} />
-          <spotLight position={[0, 5, 10]} penumbra={1} castShadow />
+          <ambientLight intensity={1} />
+          <directionalLight
+            intensity={1}
+            castShadow
+            position={[100, 80, 75]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          />
           <PerspectiveCamera makeDefault position={[0, 0, 10]} ref={camera} />
           <ActionBar />
         </>
