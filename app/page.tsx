@@ -15,8 +15,10 @@ import {
   Stars,
   useKeyboardControls,
   Box as DreiBox,
+  Clouds,
+  Cloud,
 } from "@react-three/drei";
-import { Vector3 } from "three";
+import { MeshBasicMaterial, Vector3 } from "three";
 import { RapierRigidBody, RigidBody } from "@react-three/rapier";
 import { Controls } from "./clientLayout";
 import User from "./components/User";
@@ -439,7 +441,27 @@ export default function Home() {
         fade
         speed={1}
       />
+      
       <Floor />
+
+      <Clouds material={MeshBasicMaterial} position={[20, 30, 100]}>
+        <Cloud
+          segments={40}
+          bounds={[40, 2, 30]}
+          volume={20}
+          color="white"
+          growth={10}
+          speed={0.05}
+        />
+        <Cloud
+          seed={1}
+          scale={2}
+          bounds={[40, 2, 20]}
+          volume={2}
+          color="grey"
+          fade={100}
+        />
+      </Clouds>
     </>
   );
 }
