@@ -13,6 +13,7 @@ import { useSpringValue } from "@react-spring/web";
 import { SocketContext } from "../socket/SocketContext";
 import { MessageType } from "../socket/SocketProvider";
 import { useAppSelector } from "../redux/hooks";
+import { arrayToEuler } from "../helpers";
 
 interface MyUserProps {
   userId?: number | null;
@@ -38,10 +39,13 @@ const MyUser = ({ userId }: MyUserProps) => {
 
   const rotationXSpring = useSpringValue(0);
   const rotationYSpring = useSpringValue(0);
+  const rotationZSpring = useSpringValue(0);
 
   const [prevPosition, setPrevPosition] = useState<Vector3>(new Vector3());
 
   const { isDriving } = useAppSelector((state) => state.app);
+
+  const [cameraDistance, setCameraDistance] = useState(0.5);
 
   useEffect(() => {
     if (camera) {
@@ -66,17 +70,20 @@ const MyUser = ({ userId }: MyUserProps) => {
 
       const prevRotationX = rotationXSpring.get();
       const prevRotationY = rotationYSpring.get();
+      const prevRotationZ = rotationZSpring.get();
 
       const newRotationX = prevRotationX - event.movementY * sensitivity;
       const newRotationY = prevRotationY - event.movementX * sensitivity;
+      const newRotationZ = prevRotationZ;
 
       rotationXSpring.set(newRotationX);
       rotationYSpring.set(newRotationY);
+      rotationZSpring.set(newRotationZ);
 
       const rotationDiff = [
         newRotationX - prevRotationX,
         newRotationY - prevRotationY,
-        0,
+        newRotationZ - prevRotationZ,
       ];
 
       if (rotationDiff.some((v) => v !== 0) && userId && socket?.OPEN) {
@@ -87,19 +94,36 @@ const MyUser = ({ userId }: MyUserProps) => {
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [userId, rotationXSpring, rotationYSpring, socket]);
+  }, [userId, rotationXSpring, rotationYSpring, socket, rotationZSpring]);
+
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      if (!controls?.current?.isLocked) return;
+      const sensitivity = 0.01;
+      const newCameraDistance = cameraDistance - event.deltaY * sensitivity;
+      setCameraDistance(newCameraDistance > 0 ? newCameraDistance : 0);
+    };
+    document.addEventListener("wheel", handleWheel);
+    return () => {
+      document.removeEventListener("wheel", handleWheel);
+    };
+  });
 
   useFrame(() => {
     if (meshRef?.current && !isDriving) {
       camera.position.copy(
         meshRef?.current
           ?.getWorldPosition(new Vector3())
-          .add(new Vector3(0, 0.5, 0)),
+          .add(new Vector3(0, cameraDistance / 4, cameraDistance / 2)),
       );
     }
 
     camera.rotation.setFromVector3(
-      new Vector3(rotationXSpring.get(), rotationYSpring.get(), 0),
+      new Vector3(
+        rotationXSpring.get(),
+        rotationYSpring.get(),
+        rotationZSpring.get(),
+      ),
     );
 
     const position = camera?.getWorldPosition(new Vector3());
@@ -269,8 +293,17 @@ const MyUser = ({ userId }: MyUserProps) => {
     <>
       <PerspectiveCamera makeDefault />
       <RigidBody ref={userRef} colliders="cuboid">
-        <Sphere castShadow args={[0.5, 10, 10]} ref={meshRef}>
-          <meshPhysicalMaterial attach="material" opacity={0} transparent />
+        <Sphere
+          castShadow
+          args={[0.5, 10, 10]}
+          ref={meshRef}
+          rotation={arrayToEuler([
+            rotationXSpring.get(),
+            rotationYSpring.get(),
+            rotationZSpring.get(),
+          ])}
+        >
+          <meshPhysicalMaterial attach="material" color={"gold"} />
         </Sphere>
       </RigidBody>
       <PointerLockControls ref={controls} />
