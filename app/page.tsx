@@ -39,6 +39,7 @@ import MyUser from "./components/MyUser";
 import Pencil from "./components/pencil/Pencil";
 import Car from "./components/car/Car";
 import Grass from "./components/grass/Grass";
+import Terrain from "./components/Terrain";
 
 interface User {
   userId: number;
@@ -441,7 +442,7 @@ export default function Home() {
         fade
         speed={1}
       />
-      
+
       <Floor />
 
       <Clouds material={MeshBasicMaterial} position={[20, 30, 100]}>
@@ -462,6 +463,8 @@ export default function Home() {
           fade={100}
         />
       </Clouds>
+
+      <Terrain />
     </>
   );
 }
